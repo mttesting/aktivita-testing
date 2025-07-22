@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Ovládání</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    button {
+      font-size: 1.5rem;
+      padding: 1rem 2rem;
+      background: #222;
+      color: white;
+      border: 2px solid #555;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover {
+      background: #333;
+    }
+    #info {
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="info">Načítání...</div>
+    <button onclick="toggle()">Přepnout stav</button>
+  </div>
+
+  <script>
+    const password = 'tajneheslo'; // stejný jako v PHP
+
+    let current = 'active';
+
+    async function getStatus() {
+      const res = await fetch('/get_status.php');
+      const data = await res.json();
+      current = data.status;
+      updateInfo();
+    }
+
+    function updateInfo() {
+      document.getElementById('info').textContent = 
+        current === 'active' ? 'Aktuální stav: Pracuje' : 'Aktuální stav: Nepracuje';
+    }
+
+    async function toggle() {
+      const newStatus = current === 'active' ? 'inactive' : 'active';
+      const res = await fetch('/set_status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `status=${newStatus}&password=${encodeURIComponent(password)}`
+      });
+      const data = await res.json();
+      if (data.success) {
+        current = data.status;
+        updateInfo();
+      } else {
+        alert('Nepodařilo se změnit stav: ' + data.error);
+      }
+    }
+
+    getStatus();
+  </script>
+</body>
+</html>
