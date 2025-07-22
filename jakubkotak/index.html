@@ -1,62 +1,141 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <title>Stav</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stav aktivity</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      height: 100%;
-      overflow: hidden;
-      background: #111;
+      padding: 0;
+      background-color: #111;
       color: white;
       font-family: sans-serif;
-    }
-    .center {
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      font-size: 3rem;
-      font-weight: bold;
-      transition: color 0.3s;
+      overflow: hidden;
+      position: relative;
     }
-    .active {
-      color: #00ff00;
+
+    #status {
+      font-size: 3em;
     }
-    .inactive {
-      color: #ff3333;
+
+    #control {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      color: #888;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="password"] {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 8px 14px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #666;
     }
   </style>
 </head>
 <body>
-  <div id="status" class="center">Načítám...</div>
+  <div id="status">Načítání...</div>
+  <div id="control">Control</div>
+
+  <!-- Heslové okno -->
+  <div class="modal" id="passwordModal">
+    <input type="password" id="passwordInput" placeholder="Zadej heslo" />
+    <button onclick="checkPassword()">Potvrdit</button>
+  </div>
+
+  <!-- Okno se změnou stavu -->
+  <div class="modal" id="actionModal">
+    <button onclick="toggleStatus()">Změnit stav</button>
+  </div>
 
   <script>
-    async function loadStatus() {
-      try {
-        const res = await fetch('/get_status.php');
-        const data = await res.json();
-        const el = document.getElementById('status');
+    const correctPassword = "frcontrol24";
 
-        if (data.status === 'active') {
-          el.textContent = 'Pracuje';
-          el.className = 'center active';
-        } else if (data.status === 'inactive') {
-          el.textContent = 'Nepracuje';
-          el.className = 'center inactive';
-        } else {
-          el.textContent = 'Neznámý stav';
-          el.className = 'center';
-        }
-      } catch (err) {
-        document.getElementById('status').textContent = 'Chyba načítání';
+    const statusEl = document.getElementById("status");
+    const controlBtn = document.getElementById("control");
+    const passwordModal = document.getElementById("passwordModal");
+    const actionModal = document.getElementById("actionModal");
+
+    controlBtn.onclick = () => {
+      passwordModal.style.display = "flex";
+    };
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch("get_status.php");
+        const data = await res.json();
+        updateStatusText(data.status);
+      } catch {
+        statusEl.textContent = "Chyba načítání";
       }
     }
 
-    loadStatus();
-    setInterval(loadStatus, 5000); // aktualizace každých 5 vteřin
+    function updateStatusText(status) {
+      statusEl.textContent = status === "active" ? "Pracuje" : "Nepracuje";
+    }
+
+    function checkPassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === correctPassword) {
+        passwordModal.style.display = "none";
+        actionModal.style.display = "flex";
+      } else {
+        alert("Nesprávné heslo.");
+      }
+    }
+
+    async function toggleStatus() {
+      try {
+        const res = await fetch("set_status.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "password=frcontrol24"
+        });
+        const data = await res.json();
+        if (data.success) {
+          updateStatusText(data.status);
+        } else {
+          alert("Nepodařilo se změnit stav.");
+        }
+      } catch {
+        alert("Chyba při komunikaci se serverem.");
+      }
+    }
+
+    fetchStatus();
   </script>
 </body>
 </html>
