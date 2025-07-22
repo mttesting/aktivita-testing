@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Status Práce Firebase</title>
+<title>Status Práce Firebase - 3 stavy</title>
 <style>
   body, html {
     margin: 0; padding: 0; height: 100%;
@@ -39,12 +39,10 @@
 <div id="text">Načítám...</div>
 <button id="controlBtn">control</button>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-  // Firebase konfigurace
   const firebaseConfig = {
     apiKey: "AIzaSyB2GfCg7OQfw4QlO85Dk2js_zsr76gmiQc",
     authDomain: "status-d3164.firebaseapp.com",
@@ -56,7 +54,6 @@
     measurementId: "G-F28FJ65P3K"
   };
 
-  // Inicializace Firebase
   firebase.initializeApp(firebaseConfig);
 
   const db = firebase.database();
@@ -65,11 +62,12 @@
   const textElem = document.getElementById('text');
   const btn = document.getElementById('controlBtn');
 
-  // Aktualizace textu a barvy podle stavu
   function updateText(stav) {
     textElem.textContent = stav;
     if (stav === 'Pracuje') {
       textElem.style.color = 'limegreen';
+    } else if (stav === 'Pauza') {
+      textElem.style.color = 'orange';
     } else if (stav === 'Neaktivní') {
       textElem.style.color = 'red';
     } else {
@@ -77,21 +75,22 @@
     }
   }
 
-  // Posloucháme realtime změny stavu v databázi
   stavRef.on('value', (snapshot) => {
     const stav = snapshot.val();
     if (stav) {
       updateText(stav);
     } else {
-      updateText('Neaktivní'); // výchozí pokud prázdné
+      updateText('Neaktivní');
       stavRef.set('Neaktivní');
     }
   });
 
-  // Po kliknutí přepínáme stav a ukládáme do databáze
   btn.addEventListener('click', () => {
     const current = textElem.textContent;
-    const next = current === 'Pracuje' ? 'Neaktivní' : 'Pracuje';
+    let next;
+    if (current === 'Pracuje') next = 'Pauza';
+    else if (current === 'Pauza') next = 'Neaktivní';
+    else next = 'Pracuje';
     stavRef.set(next);
   });
 </script>
