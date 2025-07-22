@@ -17,12 +17,6 @@
       overflow: hidden;
     }
 
-    #pageTitle {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: white;
-    }
-
     #statusText {
       font-size: 36px;
     }
@@ -66,8 +60,6 @@
 </head>
 <body>
   <div id="controlBtn">control</div>
-
-  <h1 id="pageTitle">Jakub Koťák</h1>
   <div id="statusText">Načítám…</div>
 
   <!-- Heslové okno -->
@@ -110,8 +102,6 @@
 
     const correctPassword = "frcontrol24";
 
-    const statusCycle = ["Pracuje", "Pauza", "Nepracuje"];
-
     // Získání stavu při načtení
     async function loadStatus() {
       try {
@@ -131,6 +121,7 @@
 
     loadStatus();
 
+    // Zobrazení modálních oken
     controlBtn.onclick = () => {
       passwordModal.style.display = "flex";
     };
@@ -155,8 +146,7 @@
 
     async function toggleStatus() {
       const current = statusText.textContent;
-      const index = statusCycle.indexOf(current);
-      const next = statusCycle[(index + 1) % statusCycle.length];
+      const next = current === "Pracuje" ? "Nepracuje" : "Pracuje";
       await setDoc(docRef, { stav: next });
       statusText.textContent = next;
     }
