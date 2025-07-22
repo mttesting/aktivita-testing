@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Status Práce Firebase s ovládáním</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: black;
+    display: flex; justify-content: center; align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  #text {
+    font-size: 3em;
+    user-select: none;
+    color: limegreen;
+  }
+  #controlBtn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: underline;
+    padding: 0;
+    z-index: 1000;
+  }
+  #controlBtn:hover {
+    color: #0f0;
+  }
+
+  /* Plovoucí okno - pozadí a vycentrování */
+  .modal-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  .modal {
+    background: #222;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #0f0;
+    color: white;
+    min-width: 280px;
+    text-align: center;
+  }
+
+  .modal input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin: 15px 0 20px 0;
+    font-size: 1em;
+    border-radius: 4px;
+    border: none;
+  }
+
+  .modal button {
+    margin: 5px 8px;
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    background-color: #333;
+    transition: background-color 0.3s ease;
+  }
+
+  .modal button:hover {
+    background-color: #0a0;
+  }
+
+  .modal button.close-btn {
+    background-color: #900;
+  }
+
+  .modal button.close-btn:hover {
+    background-color: #f00;
+  }
+</style>
+</head>
+<body>
+
+<div id="text">Načítám...</div>
+<button id="controlBtn">control</button>
+
+<!-- Okno pro heslo -->
+<div id="passwordModal" class="modal-bg">
+  <div class="modal">
+    <div>Zadej heslo:</div>
+    <input type="password" id="passwordInput" autocomplete="off" />
+    <div>
+      <button id="passwordSubmit">Potvrdit</button>
+      <button id="passwordCancel" class="close-btn">Zavřít</button>
+    </div>
+    <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
+  </div>
+</div>
+
+<!-- Okno s ovládacími tlačítky -->
+<div id="controlModal" class="modal-bg">
+  <div class="modal">
+    <div>Vyber stav:</div>
+    <div style="margin-top: 15px;">
+      <button data-state="Pracuje">Pracuje</button>
+      <button data-state="Pauza">Pauza</button>
+      <button data-state="Neaktivní">Neaktivní</button>
+      <button id="closeControl" class="close-btn">Zavřít</button>
+      <button id="logoutBtn" class="close-btn">Odhlásit se</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2GfCg7OQfw4QlO85Dk2js_zsr76gmiQc",
+    authDomain: "status-d3164.firebaseapp.com",
+    databaseURL: "https://status-d3164-default-rtdb.firebaseio.com",
+    projectId: "status-d3164",
+    storageBucket: "status-d3164.firebasestorage.app",
+    messagingSenderId: "889015018548",
+    appId: "1:889015018548:web:eaae16ad4ac16545e69661",
+    measurementId: "G-F28FJ65P3K"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.database();
+  const stavRef = db.ref('stav');
+
+  const textElem = document.getElementById('text');
+  const controlBtn = document.getElementById('controlBtn');
+  const passwordModal = document.getElementById('passwordModal');
+  const passwordInput = document.getElementById('passwordInput');
+  const passwordSubmit = document.getElementById('passwordSubmit');
+  const passwordCancel = document.getElementById('passwordCancel');
+  const passwordError = document.getElementById('passwordError');
+
+  const controlModal = document.getElementById('controlModal');
+  const closeControlBtn = document.getElementById('closeControl');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const stateButtons = controlModal.querySelectorAll('button[data-state]');
+
+  // Tvoje heslo - změň podle potřeby
+  const adminPassword = "frconzole24";
+  const localStorageKey = "prihlasen";
+
+  // Funkce pro aktualizaci textu a barvy
+  function updateText(stav) {
+    textElem.textContent = stav;
+    if (stav === 'Pracuje') {
+      textElem.style.color = 'limegreen';
+    } else if (stav === 'Pauza') {
+      textElem.style.color = 'orange';
+    } else if (stav === 'Neaktivní') {
+      textElem.style.color = 'red';
+    } else {
+      textElem.style.color = 'gray';
+    }
+  }
+
+  // Naslouchání změn ve Firebase
+  stavRef.on('value', (snapshot) => {
+    const stav = snapshot.val();
+    if (stav) {
+      updateText(stav);
+    } else {
+      updateText('Neaktivní');
+      stavRef.set('Neaktivní');
+    }
+  });
+
+  // Funkce k otevření ovládacího okna (po přihlášení)
+  function openControlModal() {
+    passwordModal.style.display = 'none';
+    controlModal.style.display = 'flex';
+  }
+
+  // Kontrola jestli je už přihlášený v localStorage
+  if(localStorage.getItem(localStorageKey) === "true") {
+    openControlModal();
+  }
+
+  // Klik na control - otevře heslo pokud není přihlášený
+  controlBtn.addEventListener('click', () => {
+    if(localStorage.getItem(localStorageKey) === "true") {
+      openControlModal();
+    } else {
+      passwordError.style.display = 'none';
+      passwordInput.value = '';
+      passwordModal.style.display = 'flex';
+      passwordInput.focus();
+    }
+  });
+
+  // Zavření okna hesla
+  passwordCancel.addEventListener('click', () => {
+    passwordModal.style.display = 'none';
+  });
+
+  // Ověření hesla
+  passwordSubmit.addEventListener('click', () => {
+    const entered = passwordInput.value;
+    if (entered === adminPassword) {
+      localStorage.setItem(localStorageKey, "true");
+      openControlModal();
+    } else {
+      passwordError.style.display = 'block';
+    }
+  });
+
+  // Tlačítka změny stavu
+  stateButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const stav = btn.getAttribute('data-state');
+      stavRef.set(stav);
+      controlModal.style.display = 'none';
+    });
+  });
+
+  // Zavření ovládacího okna
+  closeControlBtn.addEventListener('click', () => {
+    controlModal.style.display = 'none';
+  });
+
+  // Odhlášení - smaže localStorage a zavře okno
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem(localStorageKey);
+    controlModal.style.display = 'none';
+  });
+
+  // Povolit potvrzení hesla i klávesou Enter
+  passwordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      passwordSubmit.click();
+    }
+  });
+</script>
+
+</body>
+</html>
