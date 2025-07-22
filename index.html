@@ -1,63 +1,98 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Změna stavu</title>
-  <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      background-color: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      font-size: 3em;
-      color: limegreen; /* výchozí barva textu Pracuje */
-      position: relative;
-    }
-    #text {
-      user-select: none;
-    }
-    #controlBtn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      user-select: none;
-      padding: 0;
-      font-weight: normal;
-      font-family: inherit;
-      text-decoration: underline;
-      transition: color 0.2s ease;
-    }
-    #controlBtn:hover {
-      color: #0f0;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aktivita Jakub Koták</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; background: black;
+    display: flex; justify-content: center; align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  #text {
+    font-size: 3em;
+    user-select: none;
+    color: limegreen;
+  }
+  #controlBtn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: underline;
+    padding: 0;
+  }
+  #controlBtn:hover {
+    color: #0f0;
+  }
+</style>
 </head>
 <body>
-  <div id="text">Pracuje</div>
-  <button id="controlBtn">control</button>
 
-  <script>
-    const textElem = document.getElementById('text');
-    const btn = document.getElementById('controlBtn');
+<div id="text">Načítám...</div>
+<button id="controlBtn">control</button>
 
-    btn.addEventListener('click', () => {
-      if (textElem.textContent === 'Pracuje') {
-        textElem.textContent = 'Neaktivní';
-        textElem.style.color = 'red';
-      } else {
-        textElem.textContent = 'Pracuje';
-        textElem.style.color = 'limegreen';
-      }
+<script>
+const textElem = document.getElementById('text');
+const btn = document.getElementById('controlBtn');
+
+function updateText(stav) {
+  textElem.textContent = stav;
+  if (stav === 'Pracuje') {
+    textElem.style.color = 'limegreen';
+  } else if (stav === 'Neaktivní') {
+    textElem.style.color = 'red';
+  } else {
+    textElem.style.color = 'gray';
+  }
+}
+
+async function loadState() {
+  try {
+    const res = await fetch('stav.php');
+    if (res.ok) {
+      const stav = await res.text();
+      updateText(stav);
+    }
+  } catch (e) {
+    console.error('Chyba načtení stavu:', e);
+  }
+}
+
+async function saveState(stav) {
+  try {
+    const res = await fetch('stav.php', {
+      method: 'POST',
+      body: stav,
+      headers: {'Content-Type': 'text/plain'}
     });
-  </script>
+    if (!res.ok) {
+      console.error('Chyba ukládání stavu');
+    }
+  } catch (e) {
+    console.error('Chyba ukládání stavu:', e);
+  }
+}
+
+btn.addEventListener('click', async () => {
+  const current = textElem.textContent;
+  const next = current === 'Pracuje' ? 'Neaktivní' : 'Pracuje';
+  updateText(next);
+  await saveState(next);
+});
+
+// Polluj stav každé 3 sekundy, aby se synchronizoval i z jiných zařízení
+setInterval(loadState, 3000);
+
+// Načti stav při načtení stránky
+loadState();
+</script>
+
 </body>
 </html>
