@@ -92,8 +92,13 @@
     const actionModal = document.getElementById("actionModal");
 
     controlBtn.onclick = () => {
+    if (localStorage.getItem("frcontrol_authenticated") === "true") {
+      actionModal.style.display = "flex";
+    } else {
       passwordModal.style.display = "flex";
-    };
+    }
+  };
+
 
     function updateStatusText(status) {
       statusEl.textContent = status === "active" ? "Pracuje" : "Nepracuje";
