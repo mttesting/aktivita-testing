@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Změna textu</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      font-size: 2em;
+    }
+    #text {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="text">Pracuje</div>
+  <button id="toggleBtn">Změnit stav</button>
+
+  <script>
+    const textElem = document.getElementById('text');
+    const btn = document.getElementById('toggleBtn');
+
+    btn.addEventListener('click', () => {
+      if (textElem.textContent === 'Pracuje') {
+        textElem.textContent = 'Neaktivní';
+      } else {
+        textElem.textContent = 'Pracuje';
+      }
+    });
+  </script>
+</body>
+</html>
