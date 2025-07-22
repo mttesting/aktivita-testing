@@ -116,6 +116,7 @@
       <button data-state="Pauza">Pauza</button>
       <button data-state="Neaktivní">Neaktivní</button>
       <button id="closeControl" class="close-btn">Zavřít</button>
+      <button id="logoutBtn" class="close-btn">Odhlásit se</button>
     </div>
   </div>
 </div>
@@ -150,10 +151,12 @@
 
   const controlModal = document.getElementById('controlModal');
   const closeControlBtn = document.getElementById('closeControl');
+  const logoutBtn = document.getElementById('logoutBtn');
   const stateButtons = controlModal.querySelectorAll('button[data-state]');
 
   // Tvoje heslo - změň podle potřeby
-  const adminPassword = "frconzole24";
+  const adminPassword = "tajneheslo123";
+  const localStorageKey = "prihlasen";
 
   // Funkce pro aktualizaci textu a barvy
   function updateText(stav) {
@@ -180,12 +183,27 @@
     }
   });
 
-  // Klik na control - otevře okno pro heslo
+  // Funkce k otevření ovládacího okna (po přihlášení)
+  function openControlModal() {
+    passwordModal.style.display = 'none';
+    controlModal.style.display = 'flex';
+  }
+
+  // Kontrola jestli je už přihlášený v localStorage
+  if(localStorage.getItem(localStorageKey) === "true") {
+    openControlModal();
+  }
+
+  // Klik na control - otevře heslo pokud není přihlášený
   controlBtn.addEventListener('click', () => {
-    passwordError.style.display = 'none';
-    passwordInput.value = '';
-    passwordModal.style.display = 'flex';
-    passwordInput.focus();
+    if(localStorage.getItem(localStorageKey) === "true") {
+      openControlModal();
+    } else {
+      passwordError.style.display = 'none';
+      passwordInput.value = '';
+      passwordModal.style.display = 'flex';
+      passwordInput.focus();
+    }
   });
 
   // Zavření okna hesla
@@ -197,8 +215,8 @@
   passwordSubmit.addEventListener('click', () => {
     const entered = passwordInput.value;
     if (entered === adminPassword) {
-      passwordModal.style.display = 'none';
-      controlModal.style.display = 'flex';
+      localStorage.setItem(localStorageKey, "true");
+      openControlModal();
     } else {
       passwordError.style.display = 'block';
     }
@@ -215,6 +233,12 @@
 
   // Zavření ovládacího okna
   closeControlBtn.addEventListener('click', () => {
+    controlModal.style.display = 'none';
+  });
+
+  // Odhlášení - smaže localStorage a zavře okno
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem(localStorageKey);
     controlModal.style.display = 'none';
   });
 
