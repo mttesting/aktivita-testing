@@ -83,7 +83,6 @@
 
   <script>
     const correctPassword = "frcontrol24";
-
     const statusEl = document.getElementById("status");
     const controlBtn = document.getElementById("control");
     const passwordModal = document.getElementById("passwordModal");
@@ -93,18 +92,13 @@
       passwordModal.style.display = "flex";
     };
 
-    async function fetchStatus() {
-      try {
-        const res = await fetch("get_status.php");
-        const data = await res.json();
-        updateStatusText(data.status);
-      } catch {
-        statusEl.textContent = "Chyba načítání";
-      }
-    }
-
     function updateStatusText(status) {
       statusEl.textContent = status === "active" ? "Pracuje" : "Nepracuje";
+    }
+
+    function loadStatus() {
+      const status = localStorage.getItem("fr_status") || "inactive";
+      updateStatusText(status);
     }
 
     function checkPassword() {
@@ -117,25 +111,14 @@
       }
     }
 
-    async function toggleStatus() {
-      try {
-        const res = await fetch("set_status.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "password=frcontrol24"
-        });
-        const data = await res.json();
-        if (data.success) {
-          updateStatusText(data.status);
-        } else {
-          alert("Nepodařilo se změnit stav.");
-        }
-      } catch {
-        alert("Chyba při komunikaci se serverem.");
-      }
+    function toggleStatus() {
+      const current = localStorage.getItem("fr_status") || "inactive";
+      const newStatus = current === "active" ? "inactive" : "active";
+      localStorage.setItem("fr_status", newStatus);
+      updateStatusText(newStatus);
     }
 
-    fetchStatus();
+    loadStatus();
   </script>
 </body>
 </html>
