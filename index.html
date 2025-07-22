@@ -3,36 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Změna textu</title>
+  <title>Změna stavu</title>
   <style>
     body, html {
       height: 100%;
       margin: 0;
+      background-color: black;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       font-family: Arial, sans-serif;
-      font-size: 2em;
+      font-size: 3em;
+      color: limegreen; /* výchozí barva textu Pracuje */
+      position: relative;
     }
     #text {
-      margin-bottom: 20px;
+      user-select: none;
+    }
+    #controlBtn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 8px 15px;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      user-select: none;
     }
   </style>
 </head>
 <body>
   <div id="text">Pracuje</div>
-  <button id="toggleBtn">Změnit stav</button>
+  <button id="controlBtn">control</button>
 
   <script>
     const textElem = document.getElementById('text');
-    const btn = document.getElementById('toggleBtn');
+    const btn = document.getElementById('controlBtn');
 
     btn.addEventListener('click', () => {
       if (textElem.textContent === 'Pracuje') {
         textElem.textContent = 'Neaktivní';
+        textElem.style.color = 'red';
       } else {
         textElem.textContent = 'Pracuje';
+        textElem.style.color = 'limegreen';
       }
     });
   </script>
