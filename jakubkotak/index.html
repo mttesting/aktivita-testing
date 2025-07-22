@@ -107,11 +107,12 @@
     function checkPassword() {
       const input = document.getElementById("passwordInput").value;
       if (input === correctPassword) {
-        passwordModal.style.display = "none";
-        actionModal.style.display = "flex";
-      } else {
-        alert("Nesprávné heslo.");
-      }
+      localStorage.setItem("frcontrol_authenticated", "true");
+      passwordModal.style.display = "none";
+      actionModal.style.display = "flex";
+    } else {
+      alert("Nesprávné heslo.");
+    }
     }
 
     function toggleStatus() {
