@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aktivita Jakub Koták</title>
+<title>Status Práce Firebase</title>
 <style>
-  html, body {
-    margin: 0; padding: 0; height: 100%; background: black;
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: black;
     display: flex; justify-content: center; align-items: center;
     font-family: Arial, sans-serif;
   }
@@ -38,60 +39,61 @@
 <div id="text">Načítám...</div>
 <button id="controlBtn">control</button>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <script>
-const textElem = document.getElementById('text');
-const btn = document.getElementById('controlBtn');
+  // Firebase konfigurace
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2GfCg7OQfw4QlO85Dk2js_zsr76gmiQc",
+    authDomain: "status-d3164.firebaseapp.com",
+    databaseURL: "https://status-d3164-default-rtdb.firebaseio.com",
+    projectId: "status-d3164",
+    storageBucket: "status-d3164.firebasestorage.app",
+    messagingSenderId: "889015018548",
+    appId: "1:889015018548:web:eaae16ad4ac16545e69661",
+    measurementId: "G-F28FJ65P3K"
+  };
 
-function updateText(stav) {
-  textElem.textContent = stav;
-  if (stav === 'Pracuje') {
-    textElem.style.color = 'limegreen';
-  } else if (stav === 'Neaktivní') {
-    textElem.style.color = 'red';
-  } else {
-    textElem.style.color = 'gray';
+  // Inicializace Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.database();
+  const stavRef = db.ref('stav');
+
+  const textElem = document.getElementById('text');
+  const btn = document.getElementById('controlBtn');
+
+  // Aktualizace textu a barvy podle stavu
+  function updateText(stav) {
+    textElem.textContent = stav;
+    if (stav === 'Pracuje') {
+      textElem.style.color = 'limegreen';
+    } else if (stav === 'Neaktivní') {
+      textElem.style.color = 'red';
+    } else {
+      textElem.style.color = 'gray';
+    }
   }
-}
 
-async function loadState() {
-  try {
-    const res = await fetch('stav.php');
-    if (res.ok) {
-      const stav = await res.text();
+  // Posloucháme realtime změny stavu v databázi
+  stavRef.on('value', (snapshot) => {
+    const stav = snapshot.val();
+    if (stav) {
       updateText(stav);
+    } else {
+      updateText('Neaktivní'); // výchozí pokud prázdné
+      stavRef.set('Neaktivní');
     }
-  } catch (e) {
-    console.error('Chyba načtení stavu:', e);
-  }
-}
+  });
 
-async function saveState(stav) {
-  try {
-    const res = await fetch('stav.php', {
-      method: 'POST',
-      body: stav,
-      headers: {'Content-Type': 'text/plain'}
-    });
-    if (!res.ok) {
-      console.error('Chyba ukládání stavu');
-    }
-  } catch (e) {
-    console.error('Chyba ukládání stavu:', e);
-  }
-}
-
-btn.addEventListener('click', async () => {
-  const current = textElem.textContent;
-  const next = current === 'Pracuje' ? 'Neaktivní' : 'Pracuje';
-  updateText(next);
-  await saveState(next);
-});
-
-// Polluj stav každé 3 sekundy, aby se synchronizoval i z jiných zařízení
-setInterval(loadState, 3000);
-
-// Načti stav při načtení stránky
-loadState();
+  // Po kliknutí přepínáme stav a ukládáme do databáze
+  btn.addEventListener('click', () => {
+    const current = textElem.textContent;
+    const next = current === 'Pracuje' ? 'Neaktivní' : 'Pracuje';
+    stavRef.set(next);
+  });
 </script>
 
 </body>
