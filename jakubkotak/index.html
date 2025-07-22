@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Stav</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+    }
+    .center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-size: 3rem;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    .active {
+      color: #00ff00;
+    }
+    .inactive {
+      color: #ff3333;
+    }
+  </style>
+</head>
+<body>
+  <div id="status" class="center">Načítám...</div>
+
+  <script>
+    async function loadStatus() {
+      try {
+        const res = await fetch('/get_status.php');
+        const data = await res.json();
+        const el = document.getElementById('status');
+
+        if (data.status === 'active') {
+          el.textContent = 'Pracuje';
+          el.className = 'center active';
+        } else if (data.status === 'inactive') {
+          el.textContent = 'Nepracuje';
+          el.className = 'center inactive';
+        } else {
+          el.textContent = 'Neznámý stav';
+          el.className = 'center';
+        }
+      } catch (err) {
+        document.getElementById('status').textContent = 'Chyba načítání';
+      }
+    }
+
+    loadStatus();
+    setInterval(loadStatus, 5000); // aktualizace každých 5 vteřin
+  </script>
+</body>
+</html>
