@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Ovládání</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #name {
+      font-size: 6em;
+      margin-bottom: 30px;
+    }
+
+    #status {
+      font-size: 5em;
+      font-weight: bold;
+      margin-bottom: 60px;
+      transition: color 0.3s;
+    }
+
+    .green { color: #00e676; }
+    .orange { color: #ff9800; }
+    .red { color: #f44336; }
+
+    .buttons {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-size: 2em;
+      padding: 20px 40px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background-color: #222;
+      color: white;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div id="name">Jakub Koťák</div>
+  <div id="status" class="green">Pracuje</div>
+
+  <div class="buttons">
+    <button onclick="setStatus('Pracuje', 'green')">Pracuje</button>
+    <button onclick="setStatus('Pauza', 'orange')">Pauza</button>
+    <button onclick="setStatus('Neaktivní', 'red')">Neaktivní</button>
+  </div>
+
+  <script>
+    // 🔐 Firebase config – ZDE VLOŽ SVŮJ VLASTNÍ:
+    const firebaseConfig = {
+      apiKey: "TVŮJ_API_KLÍČ",
+      authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+      databaseURL: "https://TVŮJ_PROJEKT.firebaseio.com",
+      projectId: "TVŮJ_PROJEKT",
+      storageBucket: "TVŮJ_PROJEKT.appspot.com",
+      messagingSenderId: "XXXXXXX",
+      appId: "1:XXXXXXX:web:XXXXXX"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function setStatus(text, colorClass) {
+      document.getElementById('status').textContent = text;
+      document.getElementById('status').className = colorClass;
+
+      db.ref("stav").set({
+        text: text,
+        color: colorClass
+      });
+    }
+  </script>
+</body>
+</html>
