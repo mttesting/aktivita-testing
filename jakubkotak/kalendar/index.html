@@ -6,123 +6,75 @@
   <title>Pracovní doba</title>
   <style>
     body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+      margin: 0; padding: 0; height: 100%;
       font-family: Arial, sans-serif;
-      background: black;
-      color: white;
+      background: black; color: white;
     }
 
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 20px;
-      height: 100vh;
-      box-sizing: border-box;
+      display: flex; flex-direction: column;
+      align-items: center; padding: 30px 20px;
+      height: 100vh; box-sizing: border-box;
     }
 
     .top-bar {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 40px;
+      position: relative; width: 100%; max-width: 400px; margin-bottom: 40px;
     }
 
     .title {
-      text-align: center;
-      font-size: 1.6em;
-      font-weight: bold;
+      text-align: center; font-size: 1.6em; font-weight: bold;
     }
 
     #controlBtn {
-      position: absolute;
-      right: 0;
-      top: 0;
-      font-size: 14px;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      text-decoration: underline;
+      position: absolute; right: 0; top: 0;
+      font-size: 14px; background: none; border: none;
+      color: white; cursor: pointer; text-decoration: underline;
     }
 
-    #controlBtn:hover {
-      color: #0f0;
-    }
+    #controlBtn:hover { color: #0f0; }
 
     .schedule {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      font-size: 1.2em;
+      display: flex; flex-direction: column;
+      gap: 15px; font-size: 1.2em;
     }
 
     .day {
-      display: flex;
-      justify-content: space-between;
-      width: 300px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 5px;
-      cursor: pointer;
+      display: flex; justify-content: space-between;
+      width: 300px; border-bottom: 1px solid #444;
+      padding-bottom: 5px; cursor: pointer;
     }
 
-    .day:hover {
-      color: #0f0;
-    }
+    .day:hover { color: #0f0; }
 
     .modal-bg {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7); display: none;
+      justify-content: center; align-items: center; z-index: 1000;
     }
 
     .modal {
-      background: #222;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px #0f0;
-      color: white;
-      min-width: 280px;
-      text-align: center;
+      background: #222; padding: 20px 30px;
+      border-radius: 8px; box-shadow: 0 0 10px #0f0;
+      color: white; min-width: 280px; text-align: center;
     }
 
     .modal input {
-      width: 100%;
-      padding: 8px;
-      margin: 15px 0;
-      font-size: 1em;
-      border-radius: 4px;
-      border: none;
+      width: 100%; padding: 8px; margin: 15px 0;
+      font-size: 1em; border-radius: 4px; border: none;
     }
 
     .modal button {
-      margin: 5px 8px;
-      padding: 10px 15px;
-      font-size: 1em;
-      cursor: pointer;
-      border-radius: 5px;
-      border: none;
-      color: white;
-      background-color: #333;
+      margin: 5px 8px; padding: 10px 15px;
+      font-size: 1em; cursor: pointer;
+      border-radius: 5px; border: none;
+      color: white; background-color: #333;
     }
 
-    .modal button:hover {
-      background-color: #0a0;
-    }
+    .modal button:hover { background-color: #0a0; }
 
-    .modal button.close-btn {
-      background-color: #900;
-    }
+    .modal button.close-btn { background-color: #900; }
 
-    .modal button.close-btn:hover {
-      background-color: #f00;
-    }
+    .modal button.close-btn:hover { background-color: #f00; }
   </style>
 </head>
 <body>
@@ -132,12 +84,10 @@
       <button id="controlBtn">control</button>
     </div>
 
-    <div class="schedule" id="schedule">
-      <!-- Dny se zde dynamicky vytvoří -->
-    </div>
+    <div class="schedule" id="schedule"></div>
   </div>
 
-  <!-- Modal pro heslo -->
+  <!-- Modal - Heslo -->
   <div class="modal-bg" id="passwordModal">
     <div class="modal">
       <div>Zadej heslo:</div>
@@ -150,7 +100,7 @@
     </div>
   </div>
 
-  <!-- Modal pro úpravu času -->
+  <!-- Modal - Úprava -->
   <div class="modal-bg" id="editModal">
     <div class="modal">
       <div id="editDayLabel"></div>
@@ -162,19 +112,23 @@
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <script>
-    const schedule = {
-      'Pondělí': '8:00 - 16:00',
-      'Úterý': '8:00 - 16:00',
-      'Středa': '8:00 - 16:00',
-      'Čtvrtek': '8:00 - 16:00',
-      'Pátek': '8:00 - 16:00',
-      'Sobota': '8:00 - 16:00',
-      'Neděle': '8:00 - 16:00'
+    const firebaseConfig = {
+      apiKey: "AIzaSyCSpiehqXVAPpkvKeP2c21amyNyCPZY2o4",
+      authDomain: "kalendar-6bfc1.firebaseapp.com",
+      databaseURL: "https://kalendar-6bfc1-default-rtdb.firebaseio.com",
+      projectId: "kalendar-6bfc1",
+      storageBucket: "kalendar-6bfc1.appspot.com",
+      messagingSenderId: "859662535301",
+      appId: "1:859662535301:web:1350b0ff392975014ef7ec",
     };
 
-    const password = "frconzole24";
-    let isLoggedIn = false;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     const scheduleElem = document.getElementById("schedule");
     const passwordModal = document.getElementById("passwordModal");
@@ -191,6 +145,9 @@
     const editSave = document.getElementById("editSave");
     const editCancel = document.getElementById("editCancel");
 
+    const password = "frconzole24";
+    let isLoggedIn = false;
+    let schedule = {};
     let currentDay = "";
 
     function renderSchedule() {
@@ -210,6 +167,40 @@
         }
         scheduleElem.appendChild(div);
       }
+    }
+
+    function loadScheduleFromFirebase() {
+      db.ref("dochazka").once("value").then(snapshot => {
+        if (snapshot.exists()) {
+          schedule = snapshot.val();
+        } else {
+          // Výchozí data (pokud v DB nic není)
+          schedule = {
+            'Pondělí': '8:00 - 16:00',
+            'Úterý': '8:00 - 16:00',
+            'Středa': '8:00 - 16:00',
+            'Čtvrtek': '8:00 - 16:00',
+            'Pátek': '8:00 - 16:00',
+            'Sobota': 'Zavřeno',
+            'Neděle': 'Zavřeno'
+          };
+          db.ref("dochazka").set(schedule);
+        }
+        renderSchedule();
+      }).catch((error) => {
+        console.error("Chyba při načítání dat:", error);
+      });
+    }
+
+    function saveDayToFirebase(day, value) {
+      db.ref("dochazka/" + day).set(value)
+        .then(() => {
+          console.log(`Úspěšně uloženo: ${day} - ${value}`);
+          renderSchedule();
+        })
+        .catch((error) => {
+          console.error("Chyba při ukládání do Firebase:", error);
+        });
     }
 
     controlBtn.addEventListener("click", () => {
@@ -236,10 +227,9 @@
 
     editSave.addEventListener("click", () => {
       if (currentDay) {
-        const noveHodiny = editInput.value;
-        schedule[currentDay] = noveHodiny;
-        ulozPracovniHodiny(currentDay, noveHodiny);
-        renderSchedule();
+        const newValue = editInput.value;
+        schedule[currentDay] = newValue;
+        saveDayToFirebase(currentDay, newValue);
         editModal.style.display = "none";
       }
     });
@@ -252,51 +242,7 @@
       if (e.key === "Enter") passwordSubmit.click();
     });
 
-    renderSchedule();
-  </script>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCSpiehqXVAPpkvKeP2c21amyNyCPZY2o4",
-      authDomain: "kalendar-6bfc1.firebaseapp.com",
-      databaseURL: "https://kalendar-6bfc1-default-rtdb.firebaseio.com",
-      projectId: "kalendar-6bfc1",
-      storageBucket: "kalendar-6bfc1.firebasestorage.app",
-      messagingSenderId: "859662535301",
-      appId: "1:859662535301:web:1350b0ff392975014ef7ec",
-      measurementId: "G-0Z52R5BN3Q"
-    };
-
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    function ulozPracovniHodiny(den, hodiny) {
-      db.collection("dochazka").doc(den).set({ hodiny })
-        .then(() => console.log(`✅ Uloženo: ${den} → ${hodiny}`))
-        .catch((error) => console.error("❌ Chyba při ukládání:", error));
-    }
-
-    async function nactiVsechnyHodiny() {
-      try {
-        const snapshot = await db.collection("dochazka").get();
-        snapshot.forEach((doc) => {
-          if (doc.exists) {
-            schedule[doc.id] = doc.data().hodiny;
-          }
-        });
-        renderSchedule();
-      } catch (err) {
-        console.error("❌ Chyba při načítání dat:", err);
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      nactiVsechnyHodiny();
-    });
+    loadScheduleFromFirebase();
   </script>
 </body>
 </html>
