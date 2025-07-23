@@ -5,55 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pracovní doba</title>
   <style>
-    body, html {
-      margin: 0;
-      padding: 2px; /* vše 2px od kraje */
-      height: 100%;
-      font-family: Arial, sans-serif;
+    html, body {
+      margin: 0; padding: 0; height: 100%;
       background: black;
       color: white;
+      font-family: Arial, sans-serif;
       box-sizing: border-box;
     }
 
-    .container {
+    /* Kontejner - odsazení 2px od krajů */
+    body {
+      padding: 2px;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      box-sizing: border-box;
     }
 
+    /* Horní lišta */
     .top-bar {
-      position: relative;
-      padding-top: 20px; /* odsazení od vrchu */
-      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 2px 10px 2px; /* 20px odshora, 2px z boků */
       max-width: 400px;
       margin: 0 auto;
       width: 100%;
+      user-select: none;
     }
 
     .title {
       font-size: 1.6em;
       font-weight: bold;
-      text-align: center;
     }
 
     #controlBtn {
-      position: absolute;
-      right: 0;
-      top: 20px; /* zarovnat s odsazením titulu */
-      font-size: 14px;
       background: none;
       border: none;
       color: white;
       cursor: pointer;
+      font-size: 14px;
       text-decoration: underline;
       user-select: none;
     }
-
     #controlBtn:hover {
       color: #0f0;
     }
 
+    /* Kalendář - střed */
     #schedule {
       flex: 1;
       max-width: 400px;
@@ -61,36 +59,36 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      gap: 12px;
       font-size: 1.2em;
       user-select: none;
-      padding: 10px 0;
     }
 
     .day {
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid #444;
-      padding: 8px 0;
+      padding-bottom: 6px;
       cursor: pointer;
       transition: color 0.2s;
-      margin-bottom: 10px;
     }
 
     .day:hover {
       color: #0f0;
     }
 
-    /* Modal */
+    /* Modální pozadí */
     .modal-bg {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
+      inset: 0;
+      background: rgba(0,0,0,0.75);
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
 
+    /* Modální okno */
     .modal {
       background: #222;
       padding: 20px 30px;
@@ -121,7 +119,6 @@
       background-color: #333;
       user-select: none;
     }
-
     .modal button:hover {
       background-color: #0a0;
     }
@@ -129,22 +126,25 @@
     .modal button.close-btn {
       background-color: #900;
     }
-
     .modal button.close-btn:hover {
       background-color: #f00;
+    }
+
+    #passwordError {
+      color: #f55;
+      margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <div class="title">Pracovní doba</div>
-      <button id="controlBtn">control</button>
-    </div>
+  <div class="top-bar">
+    <h1 class="title">Pracovní doba</h1>
+    <button id="controlBtn">control</button>
+  </div>
 
-    <div id="schedule">
-      <!-- Dny se zde dynamicky vytvoří -->
-    </div>
+  <div id="schedule">
+    <!-- Dynamický seznam dní -->
   </div>
 
   <!-- Modal pro heslo -->
@@ -156,11 +156,11 @@
         <button id="passwordSubmit">Potvrdit</button>
         <button id="passwordCancel" class="close-btn">Zavřít</button>
       </div>
-      <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
+      <div id="passwordError">Špatné heslo!</div>
     </div>
   </div>
 
-  <!-- Modal pro úpravu času -->
+  <!-- Modal pro editaci -->
   <div class="modal-bg" id="editModal">
     <div class="modal">
       <div id="editDayLabel"></div>
@@ -173,8 +173,8 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script>
     // Firebase config
@@ -189,24 +189,22 @@
       measurementId: "G-0Z52R5BN3Q"
     };
 
-    // Inicializace Firebase
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database();
 
-    // Heslo pro přístup
-    const password = "frconzole24";
+    // Heslo
+    const PASSWORD = "frconzole24";
     let isLoggedIn = false;
 
-    // Pořadí dnů v týdnu pro správné řazení
-    const dayOrder = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
-
+    // DOM elementy
     const scheduleElem = document.getElementById("schedule");
+    const controlBtn = document.getElementById("controlBtn");
+
     const passwordModal = document.getElementById("passwordModal");
     const passwordInput = document.getElementById("passwordInput");
     const passwordSubmit = document.getElementById("passwordSubmit");
     const passwordCancel = document.getElementById("passwordCancel");
     const passwordError = document.getElementById("passwordError");
-    const controlBtn = document.getElementById("controlBtn");
 
     const editModal = document.getElementById("editModal");
     const editDayLabel = document.getElementById("editDayLabel");
@@ -214,40 +212,47 @@
     const editSave = document.getElementById("editSave");
     const editCancel = document.getElementById("editCancel");
 
-    let schedule = {}; // data z Firebase
     let currentDay = "";
 
-    // Render funkce - vykreslí kalendář podle schedule objektu
+    // Pořadí dnů
+    const dayOrder = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
+
+    // Data pracovní doby
+    let schedule = {};
+
+    // Funkce pro vykreslení kalendáře
     function renderSchedule() {
       scheduleElem.innerHTML = "";
-
-      // řadit podle dayOrder
       dayOrder.forEach(day => {
-        const val = schedule[day] || "Zavřeno";
+        const val = schedule[day] || "Neznámý čas";
         const div = document.createElement("div");
         div.className = "day";
         div.innerHTML = `<span>${day}</span><span>${val}</span>`;
+
         if (isLoggedIn) {
           div.style.cursor = "pointer";
-          div.addEventListener("click", () => {
+          div.onclick = () => {
             currentDay = day;
             editDayLabel.textContent = day;
-            editInput.value = schedule[day] || "";
+            editInput.value = val;
             editModal.style.display = "flex";
             editInput.focus();
-          });
+          };
+        } else {
+          div.style.cursor = "default";
+          div.onclick = null;
         }
         scheduleElem.appendChild(div);
       });
     }
 
-    // Načtení dat z Firebase
+    // Načti data z Firebase
     function loadSchedule() {
-      db.ref('pracovniDoba').get().then(snapshot => {
+      database.ref('pracovniDoba').once('value').then(snapshot => {
         if (snapshot.exists()) {
           schedule = snapshot.val();
         } else {
-          // výchozí hodnoty pokud nic není
+          // Výchozí data pokud nic není
           schedule = {
             'Pondělí': '8:00 - 16:00',
             'Úterý': '8:00 - 16:00',
@@ -255,37 +260,27 @@
             'Čtvrtek': '8:00 - 16:00',
             'Pátek': '8:00 - 16:00',
             'Sobota': '8:00 - 16:00',
-            'Neděle': '8:00 - 16:00'
+            'Neděle': 'Zavřeno'
           };
         }
         renderSchedule();
       }).catch(() => {
-        scheduleElem.innerHTML = "<div style='text-align:center; color:#f55;'>Chyba načítání dat</div>";
+        scheduleElem.innerHTML = "<div>Chyba načítání dat</div>";
       });
     }
 
-    // Uložení dat do Firebase
-    function saveSchedule() {
-      db.ref('pracovniDoba').set(schedule)
-        .then(() => {
-          editModal.style.display = "none";
-          renderSchedule();
-        })
-        .catch(() => alert("Chyba při ukládání dat do Firebase"));
-    }
-
-    // Ovládání tlačítek
+    // Otevření modálu hesla
     controlBtn.addEventListener("click", () => {
-      if (!isLoggedIn) {
-        passwordModal.style.display = "flex";
-        passwordInput.value = "";
-        passwordError.style.display = "none";
-        passwordInput.focus();
-      }
+      if (isLoggedIn) return;
+      passwordModal.style.display = "flex";
+      passwordInput.value = "";
+      passwordError.style.display = "none";
+      passwordInput.focus();
     });
 
+    // Ověření hesla
     passwordSubmit.addEventListener("click", () => {
-      if (passwordInput.value === password) {
+      if (passwordInput.value === PASSWORD) {
         isLoggedIn = true;
         passwordModal.style.display = "none";
         renderSchedule();
@@ -298,22 +293,25 @@
       passwordModal.style.display = "none";
     });
 
+    // Uložit změny pracovního času
     editSave.addEventListener("click", () => {
-      if (currentDay) {
-        schedule[currentDay] = editInput.value.trim();
-        saveSchedule();
-      }
+      if (!currentDay) return;
+      schedule[currentDay] = editInput.value.trim() || "Neznámý čas";
+      database.ref('pracovniDoba/' + currentDay).set(schedule[currentDay])
+        .then(() => {
+          renderSchedule();
+          editModal.style.display = "none";
+        })
+        .catch(() => {
+          alert("Chyba při ukládání do Firebase.");
+        });
     });
 
     editCancel.addEventListener("click", () => {
       editModal.style.display = "none";
     });
 
-    passwordInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") passwordSubmit.click();
-    });
-
-    // Načti data při načtení stránky
+    // Načti data při startu
     loadSchedule();
   </script>
 </body>
