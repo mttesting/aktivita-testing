@@ -2,216 +2,252 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FrCreator Activity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FrCreator - Worker Activity</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #6a00ff, #000000);
+      background: linear-gradient(120deg, #6a00ff, #000);
       color: white;
-    }
-    .container {
       padding: 20px;
-      max-width: 1000px;
-      margin: auto;
     }
-    h1, h2 {
+
+    .header {
       text-align: center;
-    }
-    .section {
-      margin-top: 40px;
-    }
-    .person {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      background-color: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      margin-bottom: 20px;
-      padding: 10px 20px;
-    }
-    .name {
-      font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 5px;
-    }
-    .status {
-      font-size: 14px;
-      font-weight: bold;
-      padding: 5px 10px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-    }
-    .status.active { background-color: #2ecc71; }
-    .status.break { background-color: #f39c12; }
-    .status.inactive { background-color: #e74c3c; }
-
-    .calendar {
-      background-color: rgba(255, 255, 255, 0.08);
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 14px;
-      min-width: 180px;
+      margin-bottom: 30px;
     }
 
-    .calendar-row {
-      display: flex;
-      justify-content: space-between;
-      margin: 5px 0;
+    .header h1 {
+      font-size: 2em;
+      margin: 0;
     }
 
     .control-btn {
       position: fixed;
-      top: 15px;
+      top: 10px;
       right: 15px;
       background: none;
-      color: white;
-      border: 1px solid white;
-      padding: 5px 10px;
+      border: none;
+      color: #ccc;
       cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+
+    .worker-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .worker {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 15px;
+      flex: 1 1 300px;
+      min-width: 280px;
+    }
+
+    .worker h3 {
+      margin-top: 0;
+    }
+
+    .status {
+      margin: 10px 0;
+      padding: 6px 10px;
       border-radius: 5px;
-      font-size: 14px;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    .status.Active {
+      background-color: green;
+    }
+
+    .status.Break {
+      background-color: orange;
+    }
+
+    .status.Inactive {
+      background-color: red;
+    }
+
+    .calendar-day {
+      display: flex;
+      justify-content: space-between;
+      margin: 3px 0;
+    }
+
+    input.time-edit, select.status-edit {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid #555;
+      border-radius: 5px;
+      padding: 3px 6px;
+      width: 100px;
+    }
+
+    input.time-edit:disabled, select.status-edit:disabled {
+      opacity: 0.7;
     }
 
     .popup {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0,0,0,0.8);
       display: none;
-      justify-content: center;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
       align-items: center;
+      justify-content: center;
+      z-index: 100;
     }
 
     .popup-content {
-      background-color: #222;
+      background: #222;
       padding: 20px;
       border-radius: 10px;
-      max-width: 90%;
-      color: white;
+      text-align: center;
     }
 
-    .popup-content input,
-    .popup-content select {
-      width: 100%;
-      margin: 10px 0;
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    .edit-section {
-      display: none;
-      margin-top: 20px;
+    .popup-content input {
+      padding: 10px;
+      margin-top: 10px;
+      width: 200px;
     }
 
     @media (max-width: 600px) {
-      .person {
-        flex-direction: column;
-        align-items: flex-start;
+      .worker {
+        flex: 1 1 100%;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>FrCreator</h1>
-    <h2>Worker Activity</h2>
+  <button class="control-btn" onclick="showPopup()">control</button>
 
-    <div class="section">
-      <h3>Owners</h3>
-      <div class="person" id="kotak">
-        <div>
-          <div class="name">Koťák</div>
-          <div class="status active">Active</div>
-        </div>
+  <div class="header">
+    <h1>FrCreator - Worker Activity</h1>
+  </div>
+
+  <div class="section">
+    <h2>Owners</h2>
+    <div class="worker-row">
+      <div class="worker">
+        <h3>Koťák</h3>
+        <select class="status-edit" disabled onchange="changeStatus(this)">
+          <option value="Active">Active</option>
+          <option value="Break">Break</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+        <div class="status Active">Active</div>
         <div class="calendar">
-          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
+          ${renderCalendar()}
         </div>
       </div>
-
-      <div class="person" id="mrtomi">
-        <div>
-          <div class="name">MrTomiCZ</div>
-          <div class="status break">Break</div>
-        </div>
+      <div class="worker">
+        <h3>MrTomiCZ</h3>
+        <select class="status-edit" disabled onchange="changeStatus(this)">
+          <option value="Active">Active</option>
+          <option value="Break">Break</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+        <div class="status Break">Break</div>
         <div class="calendar">
-          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3>Main Workers</h3>
-      <div class="person" id="jpman">
-        <div>
-          <div class="name">JPmanOF</div>
-          <div class="status inactive">Inactive</div>
-        </div>
-        <div class="calendar">
-          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
-        </div>
-      </div>
-
-      <div class="person" id="kubali">
-        <div>
-          <div class="name">kubali</div>
-          <div class="status active">Active</div>
-        </div>
-        <div class="calendar">
-          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
+          ${renderCalendar()}
         </div>
       </div>
     </div>
   </div>
 
-  <button class="control-btn" onclick="document.querySelector('.popup').style.display = 'flex'">control</button>
+  <div class="section">
+    <h2>Main Workers</h2>
+    <div class="worker-row">
+      <div class="worker">
+        <h3>JPmanOF</h3>
+        <select class="status-edit" disabled onchange="changeStatus(this)">
+          <option value="Active">Active</option>
+          <option value="Break">Break</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+        <div class="status Inactive">Inactive</div>
+        <div class="calendar">
+          ${renderCalendar()}
+        </div>
+      </div>
+      <div class="worker">
+        <h3>kubali</h3>
+        <select class="status-edit" disabled onchange="changeStatus(this)">
+          <option value="Active">Active</option>
+          <option value="Break">Break</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+        <div class="status Active">Active</div>
+        <div class="calendar">
+          ${renderCalendar()}
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div class="popup">
+  <div class="popup" id="popup">
     <div class="popup-content">
-      <label>Zadej heslo:</label>
-      <input type="password" id="passwordInput" />
-      <button onclick="checkPassword()">Potvrdit</button>
+      <h3>Enter password</h3>
+      <input type="password" id="passwordInput" placeholder="Password"/>
+      <br/>
+      <button onclick="checkPassword()">Submit</button>
     </div>
   </div>
 
   <script>
+    function renderCalendar() {
+      const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      let html = '';
+      days.forEach(day => {
+        html += \`
+          <div class="calendar-day">
+            <span>\${day}</span>
+            <input type="text" class="time-edit" value="9:00 - 16:00" disabled />
+          </div>
+        \`;
+      });
+      return html;
+    }
+
+    function showPopup() {
+      document.getElementById('popup').style.display = 'flex';
+    }
+
     function checkPassword() {
-      const pwd = document.getElementById('passwordInput').value;
-      if (pwd === 'frconzole24') {
-        document.querySelector('.popup').style.display = 'none';
-        alert("Heslo správné! (Zatím se nic neupravuje, ale rozhraní připravím.)");
-        // Tady se později zobrazí rozhraní pro editaci
+      const pass = document.getElementById('passwordInput').value;
+      if (pass === 'frconzole24') {
+        document.getElementById('popup').style.display = 'none';
+        enableEditing();
       } else {
-        alert("Špatné heslo.");
+        alert('Wrong password.');
       }
+    }
+
+    function enableEditing() {
+      document.querySelectorAll('.time-edit').forEach(input => {
+        input.disabled = false;
+      });
+      document.querySelectorAll('.status-edit').forEach(select => {
+        select.disabled = false;
+      });
+    }
+
+    function changeStatus(select) {
+      const statusDiv = select.nextElementSibling;
+      statusDiv.className = 'status ' + select.value;
+      statusDiv.innerText = select.value;
     }
   </script>
 </body>
