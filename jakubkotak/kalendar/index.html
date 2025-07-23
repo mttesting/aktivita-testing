@@ -4,164 +4,122 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pracovní doba</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    body {
       font-family: Arial, sans-serif;
-      background: black;
-      color: white;
+      padding: 40px;
+      background: #121212;
+      color: #eee;
     }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px 20px;
-      height: 100vh;
-      box-sizing: border-box;
-    }
-
-    .top-bar {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 40px;
-    }
-
-    .title {
+    h1 {
       text-align: center;
-      font-size: 1.6em;
-      font-weight: bold;
     }
-
     #controlBtn {
-      position: absolute;
-      right: 0;
-      top: 0;
-      font-size: 14px;
+      position: fixed;
+      top: 10px;
+      right: 10px;
       background: none;
       border: none;
-      color: white;
+      color: #0f0;
       cursor: pointer;
+      font-size: 16px;
       text-decoration: underline;
     }
-
-    #controlBtn:hover {
-      color: #0f0;
-    }
-
-    .schedule {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      font-size: 1.2em;
-    }
-
-    .day {
+    .den {
+      margin: 10px 0;
+      padding: 10px;
+      background: #222;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,255,0,0.2);
       display: flex;
       justify-content: space-between;
-      width: 300px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 5px;
+      cursor: default;
+    }
+    .den.editable {
       cursor: pointer;
+      border: 1px solid #0f0;
     }
-
-    .day:hover {
-      color: #0f0;
-    }
-
-    /* Modal */
+    /* Modal styl */
     .modal-bg {
+      display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      display: none;
+      background: rgba(0,0,0,0.75);
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 9999;
     }
-
     .modal {
       background: #222;
-      padding: 20px 30px;
+      padding: 20px;
       border-radius: 8px;
+      width: 320px;
       box-shadow: 0 0 10px #0f0;
       color: white;
-      min-width: 280px;
       text-align: center;
     }
-
     .modal input {
       width: 100%;
       padding: 8px;
-      margin: 15px 0;
+      margin: 10px 0 20px 0;
       font-size: 1em;
       border-radius: 4px;
       border: none;
     }
-
     .modal button {
-      margin: 5px 8px;
-      padding: 10px 15px;
-      font-size: 1em;
-      cursor: pointer;
+      padding: 8px 15px;
+      margin: 0 5px;
       border-radius: 5px;
       border: none;
-      color: white;
-      background-color: #333;
+      cursor: pointer;
+      background-color: #0f0;
+      color: #000;
+      font-weight: bold;
     }
-
-    .modal button:hover {
-      background-color: #0a0;
-    }
-
     .modal button.close-btn {
       background-color: #900;
+      color: white;
     }
-
-    .modal button.close-btn:hover {
-      background-color: #f00;
+    .modal button:hover {
+      opacity: 0.8;
+    }
+    #passwordError {
+      color: #f55;
+      margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <div class="title">Pracovní doba</div>
-      <button id="controlBtn">control</button>
-    </div>
 
-    <div class="schedule" id="schedule"></div>
-  </div>
+  <h1>Pracovní doba</h1>
+  <button id="controlBtn">control</button>
+  <div id="kalendar"></div>
 
   <!-- Modal pro heslo -->
   <div class="modal-bg" id="passwordModal">
     <div class="modal">
       <div>Zadej heslo:</div>
       <input type="password" id="passwordInput" autocomplete="off" />
-      <div>
-        <button id="passwordSubmit">Potvrdit</button>
-        <button id="passwordCancel" class="close-btn">Zavřít</button>
-      </div>
-      <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
+      <div id="passwordError">Špatné heslo!</div>
+      <button id="passwordSubmit">Potvrdit</button>
+      <button id="passwordCancel" class="close-btn">Zavřít</button>
     </div>
   </div>
 
-  <!-- Modal pro úpravu času -->
+  <!-- Modal pro editaci -->
   <div class="modal-bg" id="editModal">
     <div class="modal">
-      <div id="editDayLabel"></div>
+      <div id="editDayLabel" style="font-weight:bold; margin-bottom:10px;"></div>
       <input type="text" id="editInput" />
-      <div>
-        <button id="editSave">Uložit</button>
-        <button id="editCancel" class="close-btn">Zrušit</button>
-      </div>
+      <button id="editSave">Uložit</button>
+      <button id="editCancel" class="close-btn">Zrušit</button>
     </div>
   </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -178,23 +136,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const password = "frconzole24";
-    let isLoggedIn = false;
-    let schedule = {};
+    const dnyPoradi = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
 
-    const orderedDays = [
-      'Pondělí', 'Úterý', 'Středa', 'Čtvrtek',
-      'Pátek', 'Sobota', 'Neděle'
-    ];
+    const kalendar = document.getElementById("kalendar");
+    const controlBtn = document.getElementById("controlBtn");
 
-    const scheduleElem = document.getElementById("schedule");
     const passwordModal = document.getElementById("passwordModal");
     const passwordInput = document.getElementById("passwordInput");
     const passwordSubmit = document.getElementById("passwordSubmit");
     const passwordCancel = document.getElementById("passwordCancel");
     const passwordError = document.getElementById("passwordError");
-
-    const controlBtn = document.getElementById("controlBtn");
 
     const editModal = document.getElementById("editModal");
     const editDayLabel = document.getElementById("editDayLabel");
@@ -202,44 +153,51 @@
     const editSave = document.getElementById("editSave");
     const editCancel = document.getElementById("editCancel");
 
-    let currentDay = "";
+    let isLoggedIn = false;
+    let currentEditDay = null;
+    const adminPassword = "frconzole24";
 
-    function renderSchedule() {
-      scheduleElem.innerHTML = "";
-      orderedDays.forEach(day => {
-        const time = schedule[day] || "—";
+    function renderSchedule(data) {
+      kalendar.innerHTML = "";
+      dnyPoradi.forEach(den => {
+        const cas = data[den] || "Neuvedeno";
         const div = document.createElement("div");
-        div.className = "day";
-        div.innerHTML = `<span>${day}</span><span>${time}</span>`;
+        div.className = "den";
+        div.textContent = `${den}: ${cas}`;
         if (isLoggedIn) {
+          div.classList.add("editable");
           div.addEventListener("click", () => {
-            currentDay = day;
-            editDayLabel.textContent = day;
-            editInput.value = time;
+            currentEditDay = den;
+            editDayLabel.textContent = `Úprava: ${den}`;
+            editInput.value = cas;
             editModal.style.display = "flex";
             editInput.focus();
           });
         }
-        scheduleElem.appendChild(div);
+        kalendar.appendChild(div);
       });
     }
 
-    function loadSchedule() {
+    // Načtení dat a vykreslení
+    function loadData() {
       db.ref("pracovniDoba").once("value").then(snapshot => {
-        schedule = snapshot.val() || {};
-        renderSchedule();
+        const data = snapshot.val() || {};
+        renderSchedule(data);
+      }).catch(err => {
+        kalendar.textContent = "Chyba při načítání dat: " + err.message;
       });
     }
 
-    function saveDayToFirebase(day, time) {
-      db.ref("pracovniDoba/" + day).set(time).then(() => {
-        schedule[day] = time;
-        renderSchedule();
-      });
+    // Uložení dat do Firebase
+    function saveData(day, time) {
+      const updateObj = {};
+      updateObj[day] = time;
+      return db.ref("pracovniDoba").update(updateObj);
     }
 
+    // Eventy modálů
     controlBtn.addEventListener("click", () => {
-      if (isLoggedIn) return;
+      if (isLoggedIn) return; // Už přihlášený
       passwordModal.style.display = "flex";
       passwordInput.value = "";
       passwordError.style.display = "none";
@@ -247,10 +205,10 @@
     });
 
     passwordSubmit.addEventListener("click", () => {
-      if (passwordInput.value === password) {
+      if (passwordInput.value === adminPassword) {
         isLoggedIn = true;
         passwordModal.style.display = "none";
-        renderSchedule();
+        loadData();  // znovu vykreslit s možností editace
       } else {
         passwordError.style.display = "block";
       }
@@ -261,21 +219,32 @@
     });
 
     editSave.addEventListener("click", () => {
-      if (currentDay) {
-        saveDayToFirebase(currentDay, editInput.value);
+      const newValue = editInput.value.trim();
+      if (!currentEditDay) return;
+      saveData(currentEditDay, newValue).then(() => {
+        loadData();
         editModal.style.display = "none";
-      }
+      }).catch(err => {
+        alert("Chyba při ukládání: " + err.message);
+      });
     });
 
     editCancel.addEventListener("click", () => {
       editModal.style.display = "none";
     });
 
-    passwordInput.addEventListener("keydown", (e) => {
+    // Enter klávesa v modalech
+    passwordInput.addEventListener("keydown", e => {
       if (e.key === "Enter") passwordSubmit.click();
     });
+    editInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") editSave.click();
+    });
 
-    loadSchedule();
+    // Inicializace
+    loadData();
+
   </script>
+
 </body>
 </html>
