@@ -135,7 +135,7 @@
     <div class="schedule" id="schedule"></div>
   </div>
 
-  <!-- Modaly -->
+  <!-- Modal pro heslo -->
   <div class="modal-bg" id="passwordModal">
     <div class="modal">
       <div>Zadej heslo:</div>
@@ -148,6 +148,7 @@
     </div>
   </div>
 
+  <!-- Modal pro úpravu času -->
   <div class="modal-bg" id="editModal">
     <div class="modal">
       <div id="editDayLabel"></div>
@@ -160,8 +161,8 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -177,42 +178,39 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const ref = db.ref("pracovniDoba");
-
-    const scheduleOrder = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
-    let schedule = {};
-    let isLoggedIn = false;
-    let currentDay = "";
 
     const scheduleElem = document.getElementById("schedule");
-    const controlBtn = document.getElementById("controlBtn");
-
     const passwordModal = document.getElementById("passwordModal");
     const passwordInput = document.getElementById("passwordInput");
     const passwordSubmit = document.getElementById("passwordSubmit");
     const passwordCancel = document.getElementById("passwordCancel");
     const passwordError = document.getElementById("passwordError");
 
+    const controlBtn = document.getElementById("controlBtn");
     const editModal = document.getElementById("editModal");
     const editDayLabel = document.getElementById("editDayLabel");
     const editInput = document.getElementById("editInput");
     const editSave = document.getElementById("editSave");
     const editCancel = document.getElementById("editCancel");
 
+    const denniPoradi = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
     const password = "frconzole24";
+    let isLoggedIn = false;
+    let schedule = {};
+    let currentDay = "";
 
     function renderSchedule() {
       scheduleElem.innerHTML = "";
-      scheduleOrder.forEach(day => {
-        const time = schedule[day] || "—";
+      denniPoradi.forEach(day => {
+        const cas = schedule[day] || "Zavřeno";
         const div = document.createElement("div");
         div.className = "day";
-        div.innerHTML = `<span>${day}</span><span>${time}</span>`;
+        div.innerHTML = `<span>${day}</span><span>${cas}</span>`;
         if (isLoggedIn) {
           div.addEventListener("click", () => {
             currentDay = day;
             editDayLabel.textContent = day;
-            editInput.value = schedule[day] || "";
+            editInput.value = cas;
             editModal.style.display = "flex";
             editInput.focus();
           });
@@ -221,9 +219,17 @@
       });
     }
 
-    function loadData() {
-      ref.once("value").then(snapshot => {
-        schedule = snapshot.val() || {};
+    function loadSchedule() {
+      firebase.database().ref("pracovniDoba").once("value").then(snapshot => {
+        if (snapshot.exists()) {
+          schedule = snapshot.val();
+        }
+        renderSchedule();
+      });
+    }
+
+    function saveSchedule() {
+      firebase.database().ref("pracovniDoba").set(schedule).then(() => {
         renderSchedule();
       });
     }
@@ -250,20 +256,11 @@
       passwordModal.style.display = "none";
     });
 
-    passwordInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") passwordSubmit.click();
-    });
-
     editSave.addEventListener("click", () => {
       if (currentDay) {
-        const newValue = editInput.value.trim();
-        if (newValue !== "") {
-          schedule[currentDay] = newValue;
-          ref.set(schedule).then(() => {
-            renderSchedule();
-            editModal.style.display = "none";
-          });
-        }
+        schedule[currentDay] = editInput.value;
+        saveSchedule();
+        editModal.style.display = "none";
       }
     });
 
@@ -271,7 +268,11 @@
       editModal.style.display = "none";
     });
 
-    loadData();
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") passwordSubmit.click();
+    });
+
+    loadSchedule();
   </script>
 </body>
 </html>
