@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Stav</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #status {
+      font-size: 7em;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    .green { color: #00e676; }
+    .orange { color: #ff9800; }
+    .red { color: #f44336; }
+  </style>
+</head>
+<body>
+  <div id="status" class="green">Pracuje</div>
+
+  <script>
+    // 🔐 Firebase config – STEJNÝ JAKO NA OVLÁDACÍ STRÁNCE:
+    const firebaseConfig = {
+      apiKey: "TVŮJ_API_KLÍČ",
+      authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+      databaseURL: "https://TVŮJ_PROJEKT.firebaseio.com",
+      projectId: "TVŮJ_PROJEKT",
+      storageBucket: "TVŮJ_PROJEKT.appspot.com",
+      messagingSenderId: "XXXXXXX",
+      appId: "1:XXXXXXX:web:XXXXXX"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const statusEl = document.getElementById('status');
+
+    db.ref("stav").on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        statusEl.textContent = data.text;
+        statusEl.className = data.color;
+      }
+    });
+  </script>
+</body>
+</html>
