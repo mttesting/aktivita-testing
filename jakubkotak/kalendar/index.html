@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pracovní doba</title>
+  <title>Working hours</title>
   <style>
     body, html {
       margin: 0;
@@ -154,13 +154,13 @@
 </head>
 <body>
   <div class="top-bar">
-    <h1 class="title">Pracovní doba</h1>
+    <h1 class="title">Working hours</h1>
     <button id="controlBtn">control</button>
   </div>
 
   <div class="container">
     <div class="schedule" id="schedule">
-      <!-- Dynamicky se načte -->
+      <!-- Loaded dynamically -->
     </div>
 
     <div class="back-link">
@@ -170,13 +170,13 @@
 
   <div class="modal-bg" id="passwordModal">
     <div class="modal">
-      <div>Zadej heslo:</div>
+      <div>Enter password:</div>
       <input type="password" id="passwordInput" autocomplete="off" />
       <div>
-        <button id="passwordSubmit">Potvrdit</button>
-        <button id="passwordCancel" class="close-btn">Zavřít</button>
+        <button id="passwordSubmit">Confirm</button>
+        <button id="passwordCancel" class="close-btn">Close</button>
       </div>
-      <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
+      <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Wrong password!</div>
     </div>
   </div>
 
@@ -185,8 +185,8 @@
       <div id="editDayLabel"></div>
       <input type="text" id="editInput" />
       <div>
-        <button id="editSave">Uložit</button>
-        <button id="editCancel" class="close-btn">Zrušit</button>
+        <button id="editSave">Save</button>
+        <button id="editCancel" class="close-btn">Cancel</button>
       </div>
     </div>
   </div>
@@ -228,14 +228,14 @@
 
     let currentDay = "";
 
-    const dayOrder = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
+    const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
     let schedule = {};
 
     function renderSchedule() {
       scheduleElem.innerHTML = "";
       dayOrder.forEach(day => {
-        const val = schedule[day] || "Neznámý čas";
+        const val = schedule[day] || "Unknown time";
         const div = document.createElement("div");
         div.className = "day";
         div.innerHTML = `<span>${day}</span><span>${val}</span>`;
@@ -262,19 +262,19 @@
             schedule = snapshot.val();
           } else {
             schedule = {
-              'Pondělí': '8:00 - 16:00',
-              'Úterý': '8:00 - 16:00',
-              'Středa': '8:00 - 16:00',
-              'Čtvrtek': '8:00 - 16:00',
-              'Pátek': '8:00 - 16:00',
-              'Sobota': '8:00 - 16:00',
-              'Neděle': '8:00 - 16:00'
+              'Monday': '8:00 AM - 4:00 PM',
+              'Tuesday': '8:00 AM - 4:00 PM',
+              'Wednesday': '8:00 AM - 4:00 PM',
+              'Thursday': '8:00 AM - 4:00 PM',
+              'Friday': '8:00 AM - 4:00 PM',
+              'Saturday': '8:00 AM - 4:00 PM',
+              'Sunday': '8:00 AM - 4:00 PM'
             };
           }
           renderSchedule();
         })
         .catch(() => {
-          scheduleElem.innerHTML = "<div>Chyba načítání dat</div>";
+          scheduleElem.innerHTML = "<div>Error loading data</div>";
         });
     }
 
@@ -309,7 +309,7 @@
             editModal.style.display = "none";
           })
           .catch(() => {
-            alert("Chyba při ukládání");
+            alert("Error saving data");
           });
       }
     });
