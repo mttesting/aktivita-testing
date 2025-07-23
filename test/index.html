@@ -1,45 +1,174 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pracovní dny a časy</title>
+<title>FrCreator Worker Activity</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    max-width: 400px;
+    max-width: 900px;
     margin: 40px auto;
-    background: #f8f8f8;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    color: #eee;
+    background: linear-gradient(120deg, #7b3fe4, #000000);
   }
+  h1 {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  h2 {
+    text-align: center;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #ccc;
+  }
+
+  .group {
+    margin-bottom: 40px;
+  }
+
+  .group-title {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #9a7ffb;
+    padding-bottom: 5px;
+  }
+
+  .workers-row {
+    display: flex;
+    gap: 40px;
+  }
+
+  .worker {
+    background: rgba(255 255 255 / 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(123, 63, 228, 0.6);
+    padding: 15px 20px;
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .worker-name {
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    color: #d8cfff;
+  }
+
+  .worker-status {
+    background: rgba(123, 63, 228, 0.4);
+    border-radius: 20px;
+    padding: 6px 20px;
+    font-weight: 600;
+    color: #eee;
+    margin-bottom: 15px;
+    min-width: 120px;
+    text-align: center;
+    user-select: none;
+  }
+
+  .calendar {
+    width: 100%;
+  }
+
   .day-row {
     display: flex;
     justify-content: space-between;
-    padding: 8px 12px;
-    background: white;
-    margin-bottom: 6px;
-    border-radius: 4px;
-    font-size: 1.1rem;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(255 255 255 / 0.2);
+    font-size: 0.95rem;
+    font-family: monospace;
+    color: #ccc;
   }
+
+  .day-row:last-child {
+    border-bottom: none;
+  }
+
   .day-name {
     font-weight: 600;
-    color: #333;
+    color: #b6aaff;
   }
+
   .day-time {
-    color: #555;
-    font-family: monospace;
+    color: #a99aff;
   }
 </style>
 </head>
 <body>
-  <div class="day-row"><div class="day-name">Monday</div><div class="day-time">9:00 - 16:00</div></div>
-  <div class="day-row"><div class="day-name">Tuesday</div><div class="day-time">9:00 - 16:00</div></div>
-  <div class="day-row"><div class="day-name">Wednesday</div><div class="day-time">9:00 - 16:00</div></div>
-  <div class="day-row"><div class="day-name">Thursday</div><div class="day-time">9:00 - 16:00</div></div>
-  <div class="day-row"><div class="day-name">Friday</div><div class="day-time">9:00 - 16:00</div></div>
-  <div class="day-row"><div class="day-name">Saturday</div><div class="day-time">9:00 - 16:00</div></div>
-  <div class="day-row"><div class="day-name">Sunday</div><div class="day-time">9:00 - 16:00</div></div>
+  <h1>FrCreator</h1>
+  <h2>Worker Activity</h2>
+
+  <div class="group">
+    <div class="group-title">Owners</div>
+    <div class="workers-row">
+      <div class="worker">
+        <div class="worker-name">Koťák</div>
+        <div class="worker-status">Pracuje</div>
+        <div class="calendar">
+          <div class="day-row"><div class="day-name">Monday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Tuesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Wednesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Thursday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Friday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Saturday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Sunday</div><div class="day-time">9:00 - 16:00</div></div>
+        </div>
+      </div>
+      <div class="worker">
+        <div class="worker-name">MrTomiCZ</div>
+        <div class="worker-status">Nepracuje</div>
+        <div class="calendar">
+          <div class="day-row"><div class="day-name">Monday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Tuesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Wednesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Thursday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Friday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Saturday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Sunday</div><div class="day-time">9:00 - 16:00</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Main workers</div>
+    <div class="workers-row">
+      <div class="worker">
+        <div class="worker-name">JPmanOF</div>
+        <div class="worker-status">Pracuje</div>
+        <div class="calendar">
+          <div class="day-row"><div class="day-name">Monday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Tuesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Wednesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Thursday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Friday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Saturday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Sunday</div><div class="day-time">9:00 - 16:00</div></div>
+        </div>
+      </div>
+      <div class="worker">
+        <div class="worker-name">kubali</div>
+        <div class="worker-status">Nepracuje</div>
+        <div class="calendar">
+          <div class="day-row"><div class="day-name">Monday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Tuesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Wednesday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Thursday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Friday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Saturday</div><div class="day-time">9:00 - 16:00</div></div>
+          <div class="day-row"><div class="day-name">Sunday</div><div class="day-time">9:00 - 16:00</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
