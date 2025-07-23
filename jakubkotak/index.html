@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Status Práce Firebase s ovládáním</title>
+<title>Work Status with Firebase</title>
 <style>
   body, html {
     margin: 0; padding: 0; height: 100%;
@@ -40,6 +40,22 @@
   #calendarBtnWrapper button:hover {
     background-color: #0f0;
     color: black;
+  }
+  #backBtnWrapper {
+    margin-top: 20px;
+  }
+  #backBtnWrapper button {
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #222;
+    color: white;
+    border: 2px solid #666;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #backBtnWrapper button:hover {
+    background-color: #555;
   }
   #controlBtn {
     position: fixed;
@@ -109,7 +125,7 @@
 <body>
 
 <div id="name">Jakub Koťák</div>
-<div id="text">Načítám...</div>
+<div id="text">Loading...</div>
 
 <div id="calendarBtnWrapper">
   <a href="https://activity.frcreator.eu/jakubkotak/kalendar" style="text-decoration: none;">
@@ -117,31 +133,37 @@
   </a>
 </div>
 
+<div id="backBtnWrapper">
+  <a href="https://activity.frcreator.eu/jakubkotak" style="text-decoration: none;">
+    <button>Back to activity</button>
+  </a>
+</div>
+
 <button id="controlBtn">control</button>
 
-<!-- Okno pro heslo -->
+<!-- Password modal -->
 <div id="passwordModal" class="modal-bg">
   <div class="modal">
-    <div>Zadej heslo:</div>
+    <div>Enter password:</div>
     <input type="password" id="passwordInput" autocomplete="off" />
     <div>
-      <button id="passwordSubmit">Potvrdit</button>
-      <button id="passwordCancel" class="close-btn">Zavřít</button>
+      <button id="passwordSubmit">Submit</button>
+      <button id="passwordCancel" class="close-btn">Close</button>
     </div>
-    <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
+    <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Wrong password!</div>
   </div>
 </div>
 
-<!-- Okno s ovládacími tlačítky -->
+<!-- Control modal -->
 <div id="controlModal" class="modal-bg">
   <div class="modal">
-    <div>Vyber stav:</div>
+    <div>Select status:</div>
     <div style="margin-top: 15px;">
-      <button data-state="Pracuje">Pracuje</button>
-      <button data-state="Pauza">Pauza</button>
-      <button data-state="Neaktivní">Neaktivní</button>
-      <button id="closeControl" class="close-btn">Zavřít</button>
-      <button id="logoutBtn" class="close-btn">Odhlásit se</button>
+      <button data-state="Active">Active</button>
+      <button data-state="Pause">Pause</button>
+      <button data-state="Inactive">Inactive</button>
+      <button id="closeControl" class="close-btn">Close</button>
+      <button id="logoutBtn" class="close-btn">Log out</button>
     </div>
   </div>
 </div>
@@ -183,11 +205,11 @@
 
   function updateText(stav) {
     textElem.textContent = stav;
-    if (stav === 'Pracuje') {
+    if (stav === 'Active') {
       textElem.style.color = 'limegreen';
-    } else if (stav === 'Pauza') {
+    } else if (stav === 'Pause') {
       textElem.style.color = 'orange';
-    } else if (stav === 'Neaktivní') {
+    } else if (stav === 'Inactive') {
       textElem.style.color = 'red';
     } else {
       textElem.style.color = 'gray';
@@ -199,8 +221,8 @@
     if (stav) {
       updateText(stav);
     } else {
-      updateText('Neaktivní');
-      stavRef.set('Neaktivní');
+      updateText('Inactive');
+      stavRef.set('Inactive');
     }
   });
 
