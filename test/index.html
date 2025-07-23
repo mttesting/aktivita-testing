@@ -2,229 +2,215 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FrCreator - Worker Activity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrCreator Activity</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(120deg, #8e2de2, #000000);
+      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #6a00ff, #000000);
       color: white;
     }
-
     .container {
+      padding: 20px;
       max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
+      margin: auto;
     }
-
-    h1 {
+    h1, h2 {
       text-align: center;
-      font-size: 2rem;
     }
-
     .section {
-      margin-top: 2rem;
+      margin-top: 40px;
     }
-
-    .section-title {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .user-group {
+    .person {
       display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       flex-wrap: wrap;
-      gap: 2rem;
-      justify-content: center;
-    }
-
-    .user {
-      flex: 1 1 300px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.05);
       border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 10px 20px;
     }
-
-    .user-name {
+    .name {
       font-weight: bold;
-      margin-bottom: 0.5rem;
+      font-size: 18px;
+      margin-bottom: 5px;
     }
-
     .status {
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 1rem;
+      font-size: 14px;
       font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
     }
-
-    .active {
-      background-color: #28a745;
-    }
-
-    .break {
-      background-color: #fd7e14;
-    }
-
-    .inactive {
-      background-color: #dc3545;
-    }
+    .status.active { background-color: #2ecc71; }
+    .status.break { background-color: #f39c12; }
+    .status.inactive { background-color: #e74c3c; }
 
     .calendar {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
+      background-color: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      min-width: 180px;
     }
 
     .calendar-row {
       display: flex;
       justify-content: space-between;
-      background: rgba(255,255,255,0.03);
-      padding: 0.3rem 0.7rem;
-      border-radius: 5px;
+      margin: 5px 0;
     }
 
-    .control-button {
+    .control-btn {
       position: fixed;
-      top: 10px;
+      top: 15px;
       right: 15px;
-      cursor: pointer;
-      color: #ccc;
-      font-size: 0.9rem;
-      z-index: 1000;
       background: none;
-      border: none;
+      color: white;
+      border: 1px solid white;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 14px;
     }
 
     .popup {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      padding: 1.5rem;
-      border-radius: 10px;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.8);
       display: none;
-      z-index: 1001;
-      width: 90%;
-      max-width: 300px;
+      justify-content: center;
+      align-items: center;
     }
 
-    .popup input {
-      padding: 0.5rem;
-      width: 100%;
-      margin-bottom: 1rem;
-      border: none;
-      border-radius: 5px;
-    }
-
-    .popup button {
-      padding: 0.5rem 1rem;
-      background: #8e2de2;
-      border: none;
+    .popup-content {
+      background-color: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 90%;
       color: white;
-      border-radius: 5px;
-      cursor: pointer;
+    }
+
+    .popup-content input,
+    .popup-content select {
       width: 100%;
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    .edit-section {
+      display: none;
+      margin-top: 20px;
     }
 
     @media (max-width: 600px) {
-      .user {
-        flex: 1 1 100%;
+      .person {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 <body>
-
-  <button class="control-button" onclick="showPopup()">control</button>
-
-  <div class="popup" id="popup">
-    <input type="password" id="password" placeholder="Enter password..." />
-    <button onclick="checkPassword()">OK</button>
-  </div>
-
   <div class="container">
-    <h1>FrCreator<br>Worker Activity</h1>
+    <h1>FrCreator</h1>
+    <h2>Worker Activity</h2>
 
     <div class="section">
-      <div class="section-title">Owners</div>
-      <div class="user-group">
-        <div class="user">
-          <div class="user-name">Koťák</div>
+      <h3>Owners</h3>
+      <div class="person" id="kotak">
+        <div>
+          <div class="name">Koťák</div>
           <div class="status active">Active</div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
-          </div>
         </div>
-        <div class="user">
-          <div class="user-name">MrTomiCZ</div>
+        <div class="calendar">
+          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
+        </div>
+      </div>
+
+      <div class="person" id="mrtomi">
+        <div>
+          <div class="name">MrTomiCZ</div>
           <div class="status break">Break</div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
-          </div>
+        </div>
+        <div class="calendar">
+          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
         </div>
       </div>
     </div>
 
     <div class="section">
-      <div class="section-title">Main Workers</div>
-      <div class="user-group">
-        <div class="user">
-          <div class="user-name">JPmanOF</div>
+      <h3>Main Workers</h3>
+      <div class="person" id="jpman">
+        <div>
+          <div class="name">JPmanOF</div>
           <div class="status inactive">Inactive</div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
-          </div>
         </div>
-        <div class="user">
-          <div class="user-name">kubali</div>
-          <div class="status active">Active</div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
-            <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
-          </div>
+        <div class="calendar">
+          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
         </div>
       </div>
+
+      <div class="person" id="kubali">
+        <div>
+          <div class="name">kubali</div>
+          <div class="status active">Active</div>
+        </div>
+        <div class="calendar">
+          <div class="calendar-row"><span>Monday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Tuesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Wednesday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Thursday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Friday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Saturday</span><span>9:00 - 16:00</span></div>
+          <div class="calendar-row"><span>Sunday</span><span>9:00 - 16:00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="control-btn" onclick="document.querySelector('.popup').style.display = 'flex'">control</button>
+
+  <div class="popup">
+    <div class="popup-content">
+      <label>Zadej heslo:</label>
+      <input type="password" id="passwordInput" />
+      <button onclick="checkPassword()">Potvrdit</button>
     </div>
   </div>
 
   <script>
-    function showPopup() {
-      document.getElementById('popup').style.display = 'block';
-    }
-
     function checkPassword() {
-      const password = document.getElementById('password').value;
-      if (password === 'frconzole24') {
-        alert('Přístup povolen. (tady budeš moct zobrazit ovládací prvky)');
-        document.getElementById('popup').style.display = 'none';
+      const pwd = document.getElementById('passwordInput').value;
+      if (pwd === 'frconzole24') {
+        document.querySelector('.popup').style.display = 'none';
+        alert("Heslo správné! (Zatím se nic neupravuje, ale rozhraní připravím.)");
+        // Tady se později zobrazí rozhraní pro editaci
       } else {
-        alert('Špatné heslo');
+        alert("Špatné heslo.");
       }
     }
   </script>
