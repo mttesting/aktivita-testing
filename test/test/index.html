@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Status Práce</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #container {
+      margin-top: -25vh; /* posune blok trochu výš */
+    }
+
+    #name {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    #status {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 40px;
+      transition: color 0.3s;
+    }
+
+    .green {
+      color: #00e676;
+    }
+
+    .orange {
+      color: #ff9800;
+    }
+
+    .red {
+      color: #f44336;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    button {
+      font-size: 1.1em;
+      padding: 10px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #222;
+      color: white;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="name">Jakub Koťák</div>
+    <div id="status" class="green">Pracuje</div>
+
+    <div class="buttons">
+      <button onclick="setStatus('Pracuje', 'green')">Pracuje</button>
+      <button onclick="setStatus('Pauza', 'orange')">Pauza</button>
+      <button onclick="setStatus('Neaktivní', 'red')">Neaktivní</button>
+    </div>
+  </div>
+
+  <script>
+    function setStatus(text, colorClass) {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = text;
+      statusEl.className = colorClass;
+    }
+  </script>
+</body>
+</html>
