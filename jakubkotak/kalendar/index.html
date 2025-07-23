@@ -12,7 +12,6 @@
       font-family: Arial, sans-serif;
       background: black;
       color: white;
-      box-sizing: border-box;
     }
 
     /* Container pro celý obsah */
@@ -22,15 +21,16 @@
       display: flex;
       justify-content: center; /* horizontální centrování kalendáře */
       align-items: center;     /* vertikální centrování kalendáře */
-      padding: 2px; /* odsazení od kraje */
+      box-sizing: border-box;
+      padding-top: 20px; /* trochu odsazení od vrchu pro title */
     }
 
     /* Horní lišta s názvem a tlačítkem */
     .top-bar {
       position: fixed;
-      top: 2px;      /* 2px od vrchu */
-      left: 2px;
-      right: 2px;
+      top: 20px;      /* odsazení od vrchu */
+      left: 20px;
+      right: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -45,7 +45,6 @@
       font-size: 1.6em;
       font-weight: bold;
       margin: 0;
-      user-select: none;
     }
 
     #controlBtn {
@@ -57,7 +56,6 @@
       text-decoration: underline;
       padding: 0;
       margin: 0;
-      user-select: none;
     }
 
     #controlBtn:hover {
@@ -301,4 +299,23 @@
         database.ref('pracovniDoba/' + currentDay).set(editInput.value)
           .then(() => {
             renderSchedule();
-            editModal.style.display = "none
+            editModal.style.display = "none";
+          })
+          .catch(() => {
+            alert("Chyba při ukládání");
+          });
+      }
+    });
+
+    editCancel.addEventListener("click", () => {
+      editModal.style.display = "none";
+    });
+
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") passwordSubmit.click();
+    });
+
+    loadSchedule();
+  </script>
+</body>
+</html>
