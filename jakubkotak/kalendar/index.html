@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pracovní doba</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     body, html {
       margin: 0;
@@ -72,6 +74,7 @@
       color: #0f0;
     }
 
+    /* Modal */
     .modal-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -160,10 +163,6 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCSpiehqXVAPpkvKeP2c21amyNyCPZY2o4",
@@ -179,6 +178,15 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    const password = "frconzole24";
+    let isLoggedIn = false;
+    let schedule = {};
+
+    const orderedDays = [
+      'Pondělí', 'Úterý', 'Středa', 'Čtvrtek',
+      'Pátek', 'Sobota', 'Neděle'
+    ];
+
     const scheduleElem = document.getElementById("schedule");
     const passwordModal = document.getElementById("passwordModal");
     const passwordInput = document.getElementById("passwordInput");
@@ -187,30 +195,27 @@
     const passwordError = document.getElementById("passwordError");
 
     const controlBtn = document.getElementById("controlBtn");
+
     const editModal = document.getElementById("editModal");
     const editDayLabel = document.getElementById("editDayLabel");
     const editInput = document.getElementById("editInput");
     const editSave = document.getElementById("editSave");
     const editCancel = document.getElementById("editCancel");
 
-    const denniPoradi = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
-    const password = "frconzole24";
-    let isLoggedIn = false;
-    let schedule = {};
     let currentDay = "";
 
     function renderSchedule() {
       scheduleElem.innerHTML = "";
-      denniPoradi.forEach(day => {
-        const cas = schedule[day] || "Zavřeno";
+      orderedDays.forEach(day => {
+        const time = schedule[day] || "—";
         const div = document.createElement("div");
         div.className = "day";
-        div.innerHTML = `<span>${day}</span><span>${cas}</span>`;
+        div.innerHTML = `<span>${day}</span><span>${time}</span>`;
         if (isLoggedIn) {
           div.addEventListener("click", () => {
             currentDay = day;
             editDayLabel.textContent = day;
-            editInput.value = cas;
+            editInput.value = time;
             editModal.style.display = "flex";
             editInput.focus();
           });
@@ -220,16 +225,15 @@
     }
 
     function loadSchedule() {
-      firebase.database().ref("pracovniDoba").once("value").then(snapshot => {
-        if (snapshot.exists()) {
-          schedule = snapshot.val();
-        }
+      db.ref("pracovniDoba").once("value").then(snapshot => {
+        schedule = snapshot.val() || {};
         renderSchedule();
       });
     }
 
-    function saveSchedule() {
-      firebase.database().ref("pracovniDoba").set(schedule).then(() => {
+    function saveDayToFirebase(day, time) {
+      db.ref("pracovniDoba/" + day).set(time).then(() => {
+        schedule[day] = time;
         renderSchedule();
       });
     }
@@ -258,8 +262,7 @@
 
     editSave.addEventListener("click", () => {
       if (currentDay) {
-        schedule[currentDay] = editInput.value;
-        saveSchedule();
+        saveDayToFirebase(currentDay, editInput.value);
         editModal.style.display = "none";
       }
     });
