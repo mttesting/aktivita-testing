@@ -1,166 +1,45 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kalendář Pracovní Hodiny</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-    #controlBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: none;
-      border: none;
-      color: #aaa;
-      cursor: pointer;
-    }
-    #loginModal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border: 1px solid #ccc;
-      padding: 20px;
-      display: none;
-      z-index: 999;
-    }
-    #loginModal input {
-      margin-bottom: 10px;
-      padding: 5px;
-    }
-    #calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      height: 100vh;
-    }
-    .day {
-      border: 1px solid #ddd;
-      padding: 10px;
-      box-sizing: border-box;
-      text-align: center;
-      font-size: 18px;
-      position: relative;
-    }
-    .day input {
-      margin-top: 10px;
-      width: 80%;
-      padding: 5px;
-      display: none;
-    }
-    .day.editable input {
-      display: block;
-    }
-    .day .value {
-      margin-top: 10px;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pracovní dny a časy</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 400px;
+    margin: 40px auto;
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+  }
+  .day-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: white;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+  }
+  .day-name {
+    font-weight: 600;
+    color: #333;
+  }
+  .day-time {
+    color: #555;
+    font-family: monospace;
+  }
+</style>
 </head>
 <body>
-
-<button id="controlBtn">control</button>
-
-<div id="loginModal">
-  <input type="password" id="passwordInput" placeholder="Zadej heslo" />
-  <button id="submitPassword">OK</button>
-</div>
-
-<div id="calendar"></div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
-    authDomain: "status2-ccf4d.firebaseapp.com",
-    projectId: "status2-ccf4d",
-    storageBucket: "status2-ccf4d.firebasestorage.app",
-    messagingSenderId: "170845328997",
-    appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
-    measurementId: "G-E9TSV3D5K9"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  const days = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
-  const calendar = document.getElementById("calendar");
-  let isEditable = false;
-  let inputs = {};
-
-  function renderCalendar(data) {
-    calendar.innerHTML = "";
-    days.forEach(day => {
-      const box = document.createElement("div");
-      box.className = "day" + (isEditable ? " editable" : "");
-
-      const title = document.createElement("div");
-      title.textContent = day;
-      box.appendChild(title);
-
-      const value = document.createElement("div");
-      value.className = "value";
-      value.textContent = data[day] || "";
-      box.appendChild(value);
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.value = data[day] || "";
-      input.addEventListener("change", () => {
-        db.collection("hours").doc("workdays").update({
-          [day]: input.value
-        }).then(() => {
-          value.textContent = input.value;
-        });
-      });
-
-      box.appendChild(input);
-      inputs[day] = input;
-
-      calendar.appendChild(box);
-    });
-  }
-
-  db.collection("hours").doc("workdays").get().then(doc => {
-    if (doc.exists) {
-      renderCalendar(doc.data());
-    } else {
-      const initialData = {};
-      days.forEach(day => initialData[day] = "");
-      db.collection("hours").doc("workdays").set(initialData).then(() => {
-        renderCalendar(initialData);
-      });
-    }
-  });
-
-  const controlBtn = document.getElementById("controlBtn");
-  const loginModal = document.getElementById("loginModal");
-  const submitPassword = document.getElementById("submitPassword");
-
-  controlBtn.addEventListener("click", () => {
-    loginModal.style.display = "block";
-  });
-
-  submitPassword.addEventListener("click", () => {
-    const password = document.getElementById("passwordInput").value;
-    if (password === "tajneheslo") {
-      isEditable = true;
-      db.collection("hours").doc("workdays").get().then(doc => {
-        renderCalendar(doc.data());
-      });
-      loginModal.style.display = "none";
-    } else {
-      alert("Špatné heslo");
-    }
-  });
-</script>
-
+  <div class="day-row"><div class="day-name">Monday</div><div class="day-time">9:00 - 16:00</div></div>
+  <div class="day-row"><div class="day-name">Tuesday</div><div class="day-time">9:00 - 16:00</div></div>
+  <div class="day-row"><div class="day-name">Wednesday</div><div class="day-time">9:00 - 16:00</div></div>
+  <div class="day-row"><div class="day-name">Thursday</div><div class="day-time">9:00 - 16:00</div></div>
+  <div class="day-row"><div class="day-name">Friday</div><div class="day-time">9:00 - 16:00</div></div>
+  <div class="day-row"><div class="day-name">Saturday</div><div class="day-time">9:00 - 16:00</div></div>
+  <div class="day-row"><div class="day-name">Sunday</div><div class="day-time">9:00 - 16:00</div></div>
 </body>
 </html>
