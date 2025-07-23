@@ -5,67 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pracovní doba</title>
   <style>
-    body, html {
-      margin: 0;
-      padding: 2px;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background: black;
-      color: white;
+    * {
       box-sizing: border-box;
     }
 
-    .container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      height: 100%;
     }
 
     .top-bar {
-      position: relative;
-      padding-top: 20px;
-      padding-bottom: 10px;
-      max-width: 400px;
-      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
     }
 
     .title {
-      font-size: 1.6em;
+      font-size: 24px;
       font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
+      margin-left: 10px;
     }
 
     #controlBtn {
-      position: absolute;
-      right: 0;
-      top: 20px;
-      font-size: 14px;
+      margin-right: 10px;
       background: none;
       border: none;
-      color: white;
+      color: #fff;
       cursor: pointer;
+      font-size: 14px;
       text-decoration: underline;
     }
 
     #schedule {
-      flex: 1;
-      max-width: 400px;
-      margin: 20px auto;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      font-size: 1.2em;
-      user-select: none;
+      align-items: center;
+      margin-top: 20px;
       padding: 0 10px;
     }
 
     .day {
+      width: 100%;
+      max-width: 400px;
       display: flex;
       justify-content: space-between;
       border-bottom: 1px solid #444;
       padding: 12px 0;
-      cursor: pointer;
       margin-bottom: 8px;
     }
 
@@ -75,9 +65,9 @@
 
     #passwordPrompt {
       position: fixed;
-      top: 20%;
+      top: 30%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       background: #111;
       padding: 20px;
       border: 1px solid #666;
@@ -102,6 +92,7 @@
     #editPanel input {
       padding: 6px;
       font-size: 1em;
+      width: 100%;
     }
 
     #editPanel button {
@@ -119,24 +110,22 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="top-bar">
-      <div class="title">Pracovní doba</div>
-      <button id="controlBtn">control</button>
-    </div>
-
-    <div id="schedule"></div>
-
-    <div id="passwordPrompt">
-      <input type="password" id="passwordInput" placeholder="Zadej heslo" />
-      <button onclick="checkPassword()">OK</button>
-    </div>
-
-    <div id="editPanel"></div>
+  <div class="top-bar">
+    <div class="title">Pracovní doba</div>
+    <button id="controlBtn">control</button>
   </div>
 
+  <div id="schedule"></div>
+
+  <div id="passwordPrompt">
+    <input type="password" id="passwordInput" placeholder="Zadej heslo" />
+    <button onclick="checkPassword()">OK</button>
+  </div>
+
+  <div id="editPanel"></div>
+
   <script type="module">
-    // Tvůj Firebase config
+    // Firebase config – nahraď svými údaji!
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getDatabase,
@@ -146,12 +135,12 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "TVŮJ_API_KLÍČ",
+      apiKey: "TVŮJ_API_KEY",
       authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
       databaseURL: "https://TVŮJ_PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "TVŮJ_PROJEKT",
       storageBucket: "TVŮJ_PROJEKT.appspot.com",
-      messagingSenderId: "TVŮJ_ID",
+      messagingSenderId: "TVŮJ_SENDER_ID",
       appId: "TVŮJ_APP_ID"
     };
 
