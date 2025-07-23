@@ -93,6 +93,8 @@
       color: #ccc;
       font-size: 0.9rem;
       z-index: 1000;
+      background: none;
+      border: none;
     }
 
     .popup {
@@ -105,6 +107,8 @@
       border-radius: 10px;
       display: none;
       z-index: 1001;
+      width: 90%;
+      max-width: 300px;
     }
 
     .popup input {
@@ -122,6 +126,7 @@
       color: white;
       border-radius: 5px;
       cursor: pointer;
+      width: 100%;
     }
 
     @media (max-width: 600px) {
@@ -133,7 +138,7 @@
 </head>
 <body>
 
-  <div class="control-button" onclick="showPopup()">control</div>
+  <button class="control-button" onclick="showPopup()">control</button>
 
   <div class="popup" id="popup">
     <input type="password" id="password" placeholder="Enter password..." />
@@ -216,10 +221,10 @@
     function checkPassword() {
       const password = document.getElementById('password').value;
       if (password === 'frconzole24') {
-        alert('Access granted (placeholder)');
-        // místo alertu můžeš později přidat zobrazení edit tlačítek apod.
+        alert('Přístup povolen. (tady budeš moct zobrazit ovládací prvky)');
+        document.getElementById('popup').style.display = 'none';
       } else {
-        alert('Wrong password');
+        alert('Špatné heslo');
       }
     }
   </script>
