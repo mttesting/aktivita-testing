@@ -14,15 +14,32 @@
     color: white;
   }
   #name {
-  font-size: 4em;
-  font-weight: bold;
-  margin-bottom: 10px;
-  user-select: none;
-}
+    font-size: 4em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    user-select: none;
+  }
   #text {
     font-size: 3em;
     user-select: none;
     color: limegreen;
+  }
+  #calendarBtnWrapper {
+    margin-top: 30px;
+  }
+  #calendarBtnWrapper button {
+    padding: 12px 25px;
+    font-size: 1.2em;
+    background-color: #222;
+    color: white;
+    border: 2px solid limegreen;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #calendarBtnWrapper button:hover {
+    background-color: #0f0;
+    color: black;
   }
   #controlBtn {
     position: fixed;
@@ -93,6 +110,13 @@
 
 <div id="name">Jakub Koťák</div>
 <div id="text">Načítám...</div>
+
+<div id="calendarBtnWrapper">
+  <a href="https://aktivita.frcreator.eu/jakubkotak/kalendar" style="text-decoration: none;">
+    <button>Přejít na kalendář</button>
+  </a>
+</div>
+
 <button id="controlBtn">control</button>
 
 <!-- Okno pro heslo -->
