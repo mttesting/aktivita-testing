@@ -209,7 +209,7 @@
     const database = firebase.database();
 
     const password = "frconzole24";
-    let isLoggedIn = false;
+    let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
     const scheduleElem = document.getElementById("schedule");
     const passwordModal = document.getElementById("passwordModal");
@@ -289,6 +289,7 @@
     passwordSubmit.addEventListener("click", () => {
       if (passwordInput.value === password) {
         isLoggedIn = true;
+        localStorage.setItem("isLoggedIn", "true");
         passwordModal.style.display = "none";
         renderSchedule();
       } else {
