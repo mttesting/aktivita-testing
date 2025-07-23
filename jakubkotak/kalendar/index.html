@@ -5,35 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pracovní doba</title>
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
       height: 100%;
+      font-family: Arial, sans-serif;
       background: black;
       color: white;
-      font-family: Arial, sans-serif;
     }
 
     .container {
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
       align-items: center;
-      padding: 30px;
+      padding: 30px 20px;
       height: 100vh;
+      box-sizing: border-box;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .top-bar {
+      position: relative;
       width: 100%;
       max-width: 400px;
-      font-size: 1.4em;
       margin-bottom: 40px;
     }
 
+    .title {
+      text-align: center;
+      font-size: 1.6em;
+      font-weight: bold;
+    }
+
     #controlBtn {
+      position: absolute;
+      right: 0;
+      top: 0;
       font-size: 14px;
       background: none;
       border: none;
@@ -42,25 +48,31 @@
       text-decoration: underline;
     }
 
-    .schedule {
-      width: 100%;
-      max-width: 400px;
+    #controlBtn:hover {
+      color: #0f0;
     }
 
-    .row {
+    .schedule {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      font-size: 1.2em;
+    }
+
+    .day {
       display: flex;
       justify-content: space-between;
-      margin: 10px 0;
-      padding: 10px;
-      background: #111;
-      border-radius: 4px;
+      width: 300px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
       cursor: pointer;
     }
 
-    .row:hover {
-      background: #222;
+    .day:hover {
+      color: #0f0;
     }
 
+    /* Modal */
     .modal-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -77,13 +89,13 @@
       border-radius: 8px;
       box-shadow: 0 0 10px #0f0;
       color: white;
+      min-width: 280px;
       text-align: center;
-      max-width: 300px;
     }
 
     .modal input {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
       margin: 15px 0;
       font-size: 1em;
       border-radius: 4px;
@@ -91,162 +103,155 @@
     }
 
     .modal button {
-      margin: 5px;
-      padding: 8px 12px;
+      margin: 5px 8px;
+      padding: 10px 15px;
       font-size: 1em;
+      cursor: pointer;
       border-radius: 5px;
       border: none;
-      background-color: #333;
       color: white;
-      cursor: pointer;
+      background-color: #333;
     }
 
     .modal button:hover {
       background-color: #0a0;
     }
 
-    .modal .close-btn {
+    .modal button.close-btn {
       background-color: #900;
     }
 
-    .modal .close-btn:hover {
+    .modal button.close-btn:hover {
       background-color: #f00;
     }
   </style>
 </head>
 <body>
-
-<div class="container">
-  <div class="header">
-    <div>Pracovní doba</div>
-    <button id="controlBtn">control</button>
-  </div>
-
-  <div class="schedule" id="schedule">
-    <!-- Dny se generují pomocí JS -->
-  </div>
-</div>
-
-<!-- Modal: Heslo -->
-<div id="passwordModal" class="modal-bg">
-  <div class="modal">
-    <div>Zadej heslo:</div>
-    <input type="password" id="passwordInput" autocomplete="off" />
-    <div>
-      <button id="passwordSubmit">Potvrdit</button>
-      <button class="close-btn" onclick="closeModal()">Zavřít</button>
+  <div class="container">
+    <div class="top-bar">
+      <div class="title">Pracovní doba</div>
+      <button id="controlBtn">control</button>
     </div>
-    <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
-  </div>
-</div>
 
-<!-- Modal: Úprava dne -->
-<div id="editModal" class="modal-bg">
-  <div class="modal">
-    <div id="editDayLabel">Den:</div>
-    <input type="text" id="editValue" placeholder="Např. 8:00 - 16:00" />
-    <div>
-      <button id="saveDay">Uložit</button>
-      <button class="close-btn" onclick="closeEdit()">Zavřít</button>
+    <div class="schedule" id="schedule">
+      <!-- Dny se zde dynamicky vytvoří -->
     </div>
   </div>
-</div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB2GfCg7OQfw4QlO85Dk2js_zsr76gmiQc",
-    authDomain: "status-d3164.firebaseapp.com",
-    databaseURL: "https://status-d3164-default-rtdb.firebaseio.com",
-    projectId: "status-d3164",
-    storageBucket: "status-d3164.appspot.com",
-    messagingSenderId: "889015018548",
-    appId: "1:889015018548:web:eaae16ad4ac16545e69661"
-  };
+  <!-- Modal pro heslo -->
+  <div class="modal-bg" id="passwordModal">
+    <div class="modal">
+      <div>Zadej heslo:</div>
+      <input type="password" id="passwordInput" autocomplete="off" />
+      <div>
+        <button id="passwordSubmit">Potvrdit</button>
+        <button id="passwordCancel" class="close-btn">Zavřít</button>
+      </div>
+      <div id="passwordError" style="color: #f55; margin-top:10px; display:none;">Špatné heslo!</div>
+    </div>
+  </div>
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const ref = db.ref("tyden");
+  <!-- Modal pro úpravu času -->
+  <div class="modal-bg" id="editModal">
+    <div class="modal">
+      <div id="editDayLabel"></div>
+      <input type="text" id="editInput" />
+      <div>
+        <button id="editSave">Uložit</button>
+        <button id="editCancel" class="close-btn">Zrušit</button>
+      </div>
+    </div>
+  </div>
 
-  const dny = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
-  const schedule = document.getElementById("schedule");
-  let isAdmin = false;
-  let selectedDayIndex = null;
+  <script>
+    const schedule = {
+      'Pondělí': '8:00 - 16:00',
+      'Úterý': '8:00 - 16:00',
+      'Středa': '8:00 - 16:00',
+      'Čtvrtek': '8:00 - 16:00',
+      'Pátek': '8:00 - 16:00',
+      'Sobota': '8:00 - 16:00',
+      'Neděle': '8:00 - 16:00'
+    };
 
-  const passwordModal = document.getElementById("passwordModal");
-  const passwordInput = document.getElementById("passwordInput");
-  const passwordSubmit = document.getElementById("passwordSubmit");
-  const passwordError = document.getElementById("passwordError");
-  const editModal = document.getElementById("editModal");
-  const editValue = document.getElementById("editValue");
-  const editDayLabel = document.getElementById("editDayLabel");
-  const saveDayBtn = document.getElementById("saveDay");
+    const password = "frconzole24";
+    let isLoggedIn = false;
 
-  const adminPassword = "frconzole24";
+    const scheduleElem = document.getElementById("schedule");
+    const passwordModal = document.getElementById("passwordModal");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordSubmit = document.getElementById("passwordSubmit");
+    const passwordCancel = document.getElementById("passwordCancel");
+    const passwordError = document.getElementById("passwordError");
 
-  function renderSchedule(data = {}) {
-    schedule.innerHTML = "";
-    dny.forEach((den, i) => {
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = `<div>${den}</div><div id="value-${i}">${data[i] || "8:00 - 16:00"}</div>`;
-      row.addEventListener("click", () => {
-        if (!isAdmin) return;
-        selectedDayIndex = i;
-        editDayLabel.textContent = den;
-        editValue.value = data[i] || "";
-        editModal.style.display = "flex";
-      });
-      schedule.appendChild(row);
-    });
-  }
+    const controlBtn = document.getElementById("controlBtn");
 
-  ref.on("value", (snap) => {
-    const data = snap.val() || {};
-    renderSchedule(data);
-  });
+    const editModal = document.getElementById("editModal");
+    const editDayLabel = document.getElementById("editDayLabel");
+    const editInput = document.getElementById("editInput");
+    const editSave = document.getElementById("editSave");
+    const editCancel = document.getElementById("editCancel");
 
-  document.getElementById("controlBtn").addEventListener("click", () => {
-    if (isAdmin) return;
-    passwordInput.value = "";
-    passwordError.style.display = "none";
-    passwordModal.style.display = "flex";
-    passwordInput.focus();
-  });
+    let currentDay = "";
 
-  passwordSubmit.addEventListener("click", () => {
-    if (passwordInput.value === adminPassword) {
-      isAdmin = true;
-      passwordModal.style.display = "none";
-    } else {
-      passwordError.style.display = "block";
+    function renderSchedule() {
+      scheduleElem.innerHTML = "";
+      for (const day in schedule) {
+        const div = document.createElement("div");
+        div.className = "day";
+        div.innerHTML = `<span>${day}</span><span>${schedule[day]}</span>`;
+        if (isLoggedIn) {
+          div.addEventListener("click", () => {
+            currentDay = day;
+            editDayLabel.textContent = day;
+            editInput.value = schedule[day];
+            editModal.style.display = "flex";
+            editInput.focus();
+          });
+        }
+        scheduleElem.appendChild(div);
+      }
     }
-  });
 
-  passwordInput.addEventListener("keydown", e => {
-    if (e.key === "Enter") passwordSubmit.click();
-  });
+    controlBtn.addEventListener("click", () => {
+      if (isLoggedIn) return;
+      passwordModal.style.display = "flex";
+      passwordInput.value = "";
+      passwordError.style.display = "none";
+      passwordInput.focus();
+    });
 
-  saveDayBtn.addEventListener("click", () => {
-    const value = editValue.value.trim();
-    ref.child(selectedDayIndex).set(value);
-    editModal.style.display = "none";
-  });
+    passwordSubmit.addEventListener("click", () => {
+      if (passwordInput.value === password) {
+        isLoggedIn = true;
+        passwordModal.style.display = "none";
+        renderSchedule();
+      } else {
+        passwordError.style.display = "block";
+      }
+    });
 
-  editValue.addEventListener("keydown", e => {
-    if (e.key === "Enter") saveDayBtn.click();
-  });
+    passwordCancel.addEventListener("click", () => {
+      passwordModal.style.display = "none";
+    });
 
-  function closeModal() {
-    passwordModal.style.display = "none";
-  }
+    editSave.addEventListener("click", () => {
+      if (currentDay) {
+        schedule[currentDay] = editInput.value;
+        renderSchedule();
+        editModal.style.display = "none";
+      }
+    });
 
-  function closeEdit() {
-    editModal.style.display = "none";
-  }
-</script>
+    editCancel.addEventListener("click", () => {
+      editModal.style.display = "none";
+    });
 
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") passwordSubmit.click();
+    });
+
+    renderSchedule();
+  </script>
 </body>
 </html>
