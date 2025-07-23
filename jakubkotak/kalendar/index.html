@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Týdenní kalendář</title>
+  <title>Pracovní doba</title>
   <style>
     html, body {
       margin: 0;
@@ -14,46 +14,51 @@
       font-family: Arial, sans-serif;
     }
 
-    #calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      height: 100vh;
-      width: 100%;
-    }
-
-    .day {
-      border: 1px solid #333;
-      padding: 10px;
-      text-align: center;
-      background: #111;
-      cursor: pointer;
+    .container {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      font-size: 1.2em;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 30px;
+      height: 100vh;
     }
 
-    .day:hover {
-      background: #222;
-    }
-
-    .day span {
-      margin-top: 10px;
-      font-size: 0.9em;
-      color: #0f0;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 400px;
+      font-size: 1.4em;
+      margin-bottom: 40px;
     }
 
     #controlBtn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
       font-size: 14px;
       background: none;
       border: none;
       color: white;
       cursor: pointer;
-      z-index: 1000;
       text-decoration: underline;
+    }
+
+    .schedule {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      padding: 10px;
+      background: #111;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .row:hover {
+      background: #222;
     }
 
     .modal-bg {
@@ -63,7 +68,7 @@
       display: none;
       justify-content: center;
       align-items: center;
-      z-index: 2000;
+      z-index: 1000;
     }
 
     .modal {
@@ -73,12 +78,12 @@
       box-shadow: 0 0 10px #0f0;
       color: white;
       text-align: center;
+      max-width: 300px;
     }
 
-    .modal input[type="password"],
-    .modal input[type="text"] {
+    .modal input {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin: 15px 0;
       font-size: 1em;
       border-radius: 4px;
@@ -111,8 +116,16 @@
 </head>
 <body>
 
-<button id="controlBtn">control</button>
-<div id="calendar"></div>
+<div class="container">
+  <div class="header">
+    <div>Pracovní doba</div>
+    <button id="controlBtn">control</button>
+  </div>
+
+  <div class="schedule" id="schedule">
+    <!-- Dny se generují pomocí JS -->
+  </div>
+</div>
 
 <!-- Modal: Heslo -->
 <div id="passwordModal" class="modal-bg">
@@ -131,7 +144,7 @@
 <div id="editModal" class="modal-bg">
   <div class="modal">
     <div id="editDayLabel">Den:</div>
-    <input type="text" id="editValue" placeholder="Zadej text ke dni..." />
+    <input type="text" id="editValue" placeholder="Např. 8:00 - 16:00" />
     <div>
       <button id="saveDay">Uložit</button>
       <button class="close-btn" onclick="closeEdit()">Zavřít</button>
@@ -158,11 +171,10 @@
   const ref = db.ref("tyden");
 
   const dny = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle"];
-  const calendar = document.getElementById("calendar");
+  const schedule = document.getElementById("schedule");
   let isAdmin = false;
-  let selectedDay = null;
+  let selectedDayIndex = null;
 
-  const controlBtn = document.getElementById("controlBtn");
   const passwordModal = document.getElementById("passwordModal");
   const passwordInput = document.getElementById("passwordInput");
   const passwordSubmit = document.getElementById("passwordSubmit");
@@ -171,34 +183,32 @@
   const editValue = document.getElementById("editValue");
   const editDayLabel = document.getElementById("editDayLabel");
   const saveDayBtn = document.getElementById("saveDay");
+
   const adminPassword = "frconzole24";
 
-  // Vykresli dny
-  dny.forEach((den, index) => {
-    const div = document.createElement("div");
-    div.className = "day";
-    div.id = "day-" + index;
-    div.innerHTML = `<strong>${den}</strong><span></span>`;
-    div.addEventListener("click", () => {
-      if (!isAdmin) return;
-      selectedDay = index;
-      editDayLabel.textContent = den;
-      editValue.value = div.querySelector("span").textContent;
-      editModal.style.display = "flex";
+  function renderSchedule(data = {}) {
+    schedule.innerHTML = "";
+    dny.forEach((den, i) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `<div>${den}</div><div id="value-${i}">${data[i] || "8:00 - 16:00"}</div>`;
+      row.addEventListener("click", () => {
+        if (!isAdmin) return;
+        selectedDayIndex = i;
+        editDayLabel.textContent = den;
+        editValue.value = data[i] || "";
+        editModal.style.display = "flex";
+      });
+      schedule.appendChild(row);
     });
-    calendar.appendChild(div);
-  });
+  }
 
-  // Načíst hodnoty z Firebase
   ref.on("value", (snap) => {
     const data = snap.val() || {};
-    dny.forEach((_, i) => {
-      const val = data[i] || "";
-      document.querySelector(`#day-${i} span`).textContent = val;
-    });
+    renderSchedule(data);
   });
 
-  controlBtn.addEventListener("click", () => {
+  document.getElementById("controlBtn").addEventListener("click", () => {
     if (isAdmin) return;
     passwordInput.value = "";
     passwordError.style.display = "none";
@@ -221,7 +231,7 @@
 
   saveDayBtn.addEventListener("click", () => {
     const value = editValue.value.trim();
-    ref.child(selectedDay).set(value);
+    ref.child(selectedDayIndex).set(value);
     editModal.style.display = "none";
   });
 
@@ -237,5 +247,6 @@
     editModal.style.display = "none";
   }
 </script>
+
 </body>
 </html>
