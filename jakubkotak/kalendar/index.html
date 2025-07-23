@@ -12,32 +12,18 @@
       font-family: Arial, sans-serif;
       background: black;
       color: white;
-      box-sizing: border-box;
-    }
-
-    /* Container pro celý obsah */
-    .container {
-      position: relative;
-      height: 100vh;
-      display: flex;
-      justify-content: center; /* horizontální centrování kalendáře */
-      align-items: center;     /* vertikální centrování kalendáře */
-      padding: 2px; /* odsazení od kraje */
     }
 
     /* Horní lišta s názvem a tlačítkem */
     .top-bar {
-      position: fixed;
-      top: 2px;      /* 2px od vrchu */
+      position: absolute;
+      top: 2px;
       left: 2px;
       right: 2px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      max-width: 400px;
-      margin: 0 auto;
-      width: 100%;
-      box-sizing: border-box;
+      padding: 10px 10px 0 10px;
       z-index: 1001;
     }
 
@@ -45,7 +31,6 @@
       font-size: 1.6em;
       font-weight: bold;
       margin: 0;
-      user-select: none;
     }
 
     #controlBtn {
@@ -56,23 +41,30 @@
       cursor: pointer;
       text-decoration: underline;
       padding: 0;
-      margin: 0;
-      user-select: none;
+      margin-top: 2px;
+      margin-right: 2px;
     }
 
     #controlBtn:hover {
       color: #0f0;
     }
 
-    /* Kalendář (seznam pracovních dnů) */
+    .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 400px;
+      padding: 0 2px;
+    }
+
     .schedule {
       display: flex;
       flex-direction: column;
       gap: 15px;
       font-size: 1.2em;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
       user-select: none;
     }
 
@@ -90,7 +82,6 @@
       color: #0f0;
     }
 
-    /* Modal */
     .modal-bg {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -152,11 +143,11 @@
 
   <div class="container">
     <div class="schedule" id="schedule">
-      <!-- Dny se zde dynamicky vytvoří -->
+      <!-- Dynamické načítání -->
     </div>
   </div>
 
-  <!-- Modal pro heslo -->
+  <!-- Modal - Heslo -->
   <div class="modal-bg" id="passwordModal">
     <div class="modal">
       <div>Zadej heslo:</div>
@@ -169,7 +160,7 @@
     </div>
   </div>
 
-  <!-- Modal pro úpravu času -->
+  <!-- Modal - Úprava dne -->
   <div class="modal-bg" id="editModal">
     <div class="modal">
       <div id="editDayLabel"></div>
@@ -219,14 +210,12 @@
 
     let currentDay = "";
 
-    // Výchozí pořadí dnů
     const dayOrder = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota', 'Neděle'];
 
     let schedule = {};
 
     function renderSchedule() {
       scheduleElem.innerHTML = "";
-      // zobraz dny ve správném pořadí
       dayOrder.forEach(day => {
         const val = schedule[day] || "Neznámý čas";
         const div = document.createElement("div");
@@ -254,15 +243,14 @@
           if(snapshot.exists()) {
             schedule = snapshot.val();
           } else {
-            // Pokud není nic v DB, nastav výchozí hodnoty
             schedule = {
               'Pondělí': '8:00 - 16:00',
               'Úterý': '8:00 - 16:00',
               'Středa': '8:00 - 16:00',
               'Čtvrtek': '8:00 - 16:00',
               'Pátek': '8:00 - 16:00',
-              'Sobota': '8:00 - 16:00',
-              'Neděle': '8:00 - 16:00'
+              'Sobota': 'Zavřeno',
+              'Neděle': 'Zavřeno'
             };
           }
           renderSchedule();
@@ -297,8 +285,26 @@
     editSave.addEventListener("click", () => {
       if (currentDay) {
         schedule[currentDay] = editInput.value;
-        // uložíme do Firebase
         database.ref('pracovniDoba/' + currentDay).set(editInput.value)
           .then(() => {
             renderSchedule();
-            editModal.style.display = "none
+            editModal.style.display = "none";
+          })
+          .catch(() => {
+            alert("Chyba při ukládání");
+          });
+      }
+    });
+
+    editCancel.addEventListener("click", () => {
+      editModal.style.display = "none";
+    });
+
+    passwordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") passwordSubmit.click();
+    });
+
+    loadSchedule();
+  </script>
+</body>
+</html>
