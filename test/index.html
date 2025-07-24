@@ -7,205 +7,261 @@
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
-      background-color: #000;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #6e00ff, #000000);
       color: white;
-      padding: 20px;
-    }
-
-    .control-btn {
-      position: fixed;
-      top: 10px;
-      right: 20px;
-      background: transparent;
-      border: none;
-      color: #ccc;
-      cursor: pointer;
-      font-size: 16px;
-      z-index: 1000;
-    }
-
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 1001;
-    }
-
-    .popup input {
-      padding: 5px;
     }
 
     .container {
+      padding: 20px;
       max-width: 900px;
       margin: auto;
     }
 
     h1, h2 {
       text-align: center;
+      margin-bottom: 10px;
     }
 
-    .section {
-      margin-top: 40px;
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
     }
 
-    .people {
+    .user {
       display: flex;
-      flex-wrap: wrap;
-      gap: 40px;
-      justify-content: center;
+      flex-direction: column;
+      margin-bottom: 30px;
     }
 
-    .person {
-      background: rgba(255,255,255,0.05);
-      padding: 15px;
-      border-radius: 10px;
-      min-width: 250px;
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .status-display {
+    .status {
       font-weight: bold;
-      margin-top: 10px;
     }
 
-    .status-display.active {
-      color: #00c853;
+    .status.active {
+      color: #00ff00;
     }
 
-    .status-display.break {
-      color: #ffab00;
+    .status.break {
+      color: orange;
     }
 
-    .status-display.inactive {
-      color: #d50000;
-    }
-
-    .status select {
-      padding: 5px;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      margin-top: 5px;
-      display: none;
+    .status.inactive {
+      color: red;
     }
 
     .calendar {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
       margin-top: 10px;
+      padding-left: 10px;
     }
 
-    .calendar-row {
+    .day-row {
       display: flex;
       justify-content: space-between;
+      margin: 3px 0;
     }
 
-    .calendar-row input {
-      border: none;
-      padding: 5px;
-      border-radius: 5px;
-      width: 100px;
-      background-color: #111;
+    .editable {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Control button */
+    .control {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 14px;
+      color: #bbb;
+      cursor: pointer;
+    }
+
+    /* Popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+      z-index: 10;
+    }
+
+    .popup input {
+      background: #222;
+      border: 1px solid #444;
       color: white;
+      padding: 5px;
+      width: 100%;
     }
 
-    @media (max-width: 600px) {
-      .people {
-        flex-direction: column;
-        align-items: center;
-      }
+    .popup button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 5px;
+      background: #6e00ff;
+      border: none;
+      color: white;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <button class="control-btn" onclick="document.querySelector('.popup').style.display = 'flex'">control</button>
 
-  <div class="popup">
-    <label for="password">Enter password:</label>
-    <input type="password" id="password" />
-    <button onclick="checkPassword()">Submit</button>
-  </div>
+<div class="control" onclick="togglePopup()">control</div>
 
-  <div class="container">
-    <h1>FrCreator</h1>
-    <h2>Worker Activity</h2>
+<div class="popup" id="popup">
+  <input type="password" id="password" placeholder="Enter password">
+  <button onclick="checkPassword()">Submit</button>
+</div>
 
-    <div class="section">
-      <h3>Owners</h3>
-      <div class="people">
-        <div class="person" data-person>
-          <strong>Koťák</strong>
-          <div class="status">
-            <div class="status-display" data-status>Active</div>
-            <select onchange="updateStatus(this)">
-              <option value="Active">Active</option>
-              <option value="Break">Break</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-          </div>
-        </div>
+<div class="container">
+  <h1>FrCreator</h1>
+  <h2>Worker Activity</h2>
 
-        <!-- Přidej další osoby stejně, např. MrTomiCZ, JPmanOF, kubali atd. -->
-
-      </div>
+  <div class="section-title">Owners</div>
+  <div class="user" id="kotak">
+    <div class="user-header">
+      <span>Koťák</span>
+      <span class="status active" id="status-kotak">Active</span>
+    </div>
+    <select class="hidden" onchange="updateStatus('kotak')" id="select-kotak">
+      <option value="active">Active</option>
+      <option value="break">Break</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <div class="calendar" id="calendar-kotak">
+      <!-- Days will be rendered by JS -->
     </div>
   </div>
 
-  <script>
-    function checkPassword() {
-      const input = document.getElementById("password").value;
-      if (input === "frconzole24") {
-        document.querySelector('.popup').style.display = 'none';
+  <div class="user" id="mrtomicz">
+    <div class="user-header">
+      <span>MrTomiCZ</span>
+      <span class="status inactive" id="status-mrtomicz">Inactive</span>
+    </div>
+    <select class="hidden" onchange="updateStatus('mrtomicz')" id="select-mrtomicz">
+      <option value="active">Active</option>
+      <option value="break">Break</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <div class="calendar" id="calendar-mrtomicz"></div>
+  </div>
 
-        document.querySelectorAll('.person').forEach(person => {
-          person.querySelectorAll('select').forEach(select => {
-            select.style.display = 'block';
-          });
-          person.querySelectorAll('input[type="text"]').forEach(input => {
-            input.disabled = false;
-          });
-        });
-      } else {
-        alert("Wrong password.");
-      }
+  <div class="section-title">Main workers</div>
+  <div class="user" id="jpmanof">
+    <div class="user-header">
+      <span>JPmanOF</span>
+      <span class="status break" id="status-jpmanof">Break</span>
+    </div>
+    <select class="hidden" onchange="updateStatus('jpmanof')" id="select-jpmanof">
+      <option value="active">Active</option>
+      <option value="break">Break</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <div class="calendar" id="calendar-jpmanof"></div>
+  </div>
+
+  <div class="user" id="kubali">
+    <div class="user-header">
+      <span>kubali</span>
+      <span class="status active" id="status-kubali">Active</span>
+    </div>
+    <select class="hidden" onchange="updateStatus('kubali')" id="select-kubali">
+      <option value="active">Active</option>
+      <option value="break">Break</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <div class="calendar" id="calendar-kubali"></div>
+  </div>
+</div>
+
+<script>
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const users = ["kotak", "mrtomicz", "jpmanof", "kubali"];
+  const defaultHours = {
+    "Monday": "9:00 - 16:00",
+    "Tuesday": "9:00 - 16:00",
+    "Wednesday": "9:00 - 16:00",
+    "Thursday": "9:00 - 16:00",
+    "Friday": "9:00 - 16:00",
+    "Saturday": "9:00 - 16:00",
+    "Sunday": "9:00 - 16:00"
+  };
+
+  const calendarData = {};
+
+  function renderCalendar(userId) {
+    const cal = document.getElementById("calendar-" + userId);
+    cal.innerHTML = "";
+    if (!calendarData[userId]) {
+      calendarData[userId] = { ...defaultHours };
     }
 
-    function updateStatus(select) {
-      const statusText = select.parentElement.querySelector('[data-status]');
-      const value = select.value;
-      statusText.textContent = value;
-
-      statusText.classList.remove('active', 'break', 'inactive');
-
-      if (value === "Active") statusText.classList.add('active');
-      else if (value === "Break") statusText.classList.add('break');
-      else if (value === "Inactive") statusText.classList.add('inactive');
-    }
-
-    // Init barvy statusů při načtení
-    document.querySelectorAll('.status-display').forEach(el => {
-      const text = el.textContent.trim();
-      if (text === "Active") el.classList.add('active');
-      else if (text === "Break") el.classList.add('break');
-      else if (text === "Inactive") el.classList.add('inactive');
+    days.forEach(day => {
+      const row = document.createElement("div");
+      row.className = "day-row";
+      const timeSpan = document.createElement("span");
+      timeSpan.textContent = day;
+      const hourSpan = document.createElement("span");
+      hourSpan.textContent = calendarData[userId][day];
+      hourSpan.className = "editable";
+      hourSpan.onclick = () => {
+        if (!canEdit) return;
+        const input = prompt("Enter new time for " + day, calendarData[userId][day]);
+        if (input !== null) {
+          calendarData[userId][day] = input;
+          renderCalendar(userId);
+        }
+      };
+      row.appendChild(timeSpan);
+      row.appendChild(hourSpan);
+      cal.appendChild(row);
     });
-  </script>
+  }
+
+  let canEdit = false;
+
+  function togglePopup() {
+    document.getElementById("popup").style.display = "block";
+  }
+
+  function checkPassword() {
+    const pw = document.getElementById("password").value;
+    if (pw === "frconzole24") {
+      canEdit = true;
+      document.getElementById("popup").style.display = "none";
+      users.forEach(user => {
+        document.getElementById("select-" + user).classList.remove("hidden");
+      });
+    } else {
+      alert("Wrong password!");
+    }
+  }
+
+  function updateStatus(userId) {
+    const value = document.getElementById("select-" + userId).value;
+    const statusSpan = document.getElementById("status-" + userId);
+    statusSpan.textContent = value.charAt(0).toUpperCase() + value.slice(1);
+    statusSpan.className = "status " + value;
+  }
+
+  // Initialize calendars
+  users.forEach(user => renderCalendar(user));
+</script>
 </body>
 </html>
