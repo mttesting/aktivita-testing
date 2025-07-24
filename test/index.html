@@ -86,7 +86,7 @@
     flex: 1;
   }
   .time-text {
-    cursor: pointer;
+    cursor: default;
   }
   .time-edit {
     display: none;
@@ -129,7 +129,7 @@
 
 <h1>Pracovní Aktivita</h1>
 
-<div id="usersContainer"></div>
+<div id="usersContainer">Loading...</div>
 
 <button id="saveBtn" onclick="saveAll()">Uložit změny</button>
 
@@ -138,16 +138,18 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-  // Změň na svůj Firebase config:
+  // --- TVŮJ FIREBASE CONFIG ZDE ---
   const firebaseConfig = {
-    apiKey: "TVŮJ_API_KEY",
-    authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
-    databaseURL: "https://TVŮJ_PROJEKT.firebaseio.com",
-    projectId: "TVŮJ_PROJEKT",
-    storageBucket: "TVŮJ_PROJEKT.appspot.com",
-    messagingSenderId: "TVŮJ_MESSAGING_ID",
-    appId: "TVŮJ_APP_ID"
-  };
+  apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
+  authDomain: "status2-ccf4d.firebaseapp.com",
+  databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "status2-ccf4d",
+  storageBucket: "status2-ccf4d.firebasestorage.app",
+  messagingSenderId: "170845328997",
+  appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
+  measurementId: "G-E9TSV3D5K9"
+};
+
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -161,13 +163,11 @@
 
   const password = "frconzole24";
 
-  // Toggle popup viditelnost
   function togglePopup() {
     const pop = document.getElementById("popup");
     pop.style.display = pop.style.display === "block" ? "none" : "block";
   }
 
-  // Kontrola hesla
   function checkPassword() {
     const input = document.getElementById("passwordInput");
     if(input.value === password){
@@ -181,7 +181,6 @@
     input.value = "";
   }
 
-  // Vykreslí všechny uživatele
   function renderAllUsers() {
     const container = document.getElementById("usersContainer");
     container.innerHTML = "";
@@ -198,9 +197,7 @@
         kubali: "kubali"
       }[userId] || userId;
 
-      // Status a select pro editaci
       const status = statusData[userId] || "inactive";
-
       const statusClass = status;
 
       let html = `
@@ -213,7 +210,6 @@
         </select>
       `;
 
-      // Kalendář dní
       html += '<div class="calendar">';
       days.forEach(day => {
         const time = (calendarData[userId] && calendarData[userId][day]) || "Off";
@@ -232,7 +228,6 @@
       userDiv.innerHTML = html;
       container.appendChild(userDiv);
 
-      // Nastavit viditelnost selectu podle canEdit
       const selectEl = document.getElementById("select-" + userId);
       if(canEdit){
         selectEl.style.display = "inline-block";
@@ -242,7 +237,6 @@
         selectEl.style.display = "none";
       }
 
-      // Přidat eventy pro editaci časů, pokud lze editovat
       days.forEach(day => {
         const textEl = document.getElementById(`text-${userId}-${day}`);
         const inputEl = document.getElementById(`input-${userId}-${day}`);
@@ -251,7 +245,6 @@
           textEl.style.display = "none";
           inputEl.style.display = "inline-block";
 
-          // změna hodnoty v inputu rovnou mění data v calendarData
           inputEl.oninput = () => {
             if(!calendarData[userId]) calendarData[userId] = {};
             calendarData[userId][day] = inputEl.value;
@@ -264,24 +257,27 @@
     });
   }
 
-  // Aktualizace statusu při změně selectu
   function updateStatus(userId){
     const sel = document.getElementById("select-" + userId);
     const newStatus = sel.value;
     statusData[userId] = newStatus;
-    // Aktualizuj UI text
     const statusEl = document.getElementById("status-" + userId);
     statusEl.textContent = capitalize(newStatus);
     statusEl.className = "status " + newStatus;
   }
 
-  // Načti data z Firebase
   function loadData() {
     const ref = db.ref("users");
     ref.on("value", (snapshot) => {
       const data = snapshot.val();
       if(!data){
         alert("Žádná data v Firebase");
+        // inicializace prázdných dat
+        users.forEach(u => {
+          statusData[u] = "inactive";
+          calendarData[u] = {};
+        });
+        renderAllUsers();
         return;
       }
       users.forEach(u => {
@@ -294,7 +290,6 @@
     });
   }
 
-  // Ulož všechna data zpět do Firebase
   function saveAll() {
     if(!canEdit) return alert("Nemáš oprávnění upravovat.");
 
@@ -311,12 +306,10 @@
       .catch(e => alert("Chyba při ukládání: " + e));
   }
 
-  // Helper na kapitalizaci
   function capitalize(str){
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  // Inicializace
   loadData();
 </script>
 
