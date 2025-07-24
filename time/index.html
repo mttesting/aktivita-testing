@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Pracovní časy</title>
   <style>
     body {
@@ -60,54 +60,63 @@
     }
 
     async function loadData() {
-      const snapshot = await db.ref("statusHistory").once("value");
-      const data = snapshot.val();
-      const output = document.getElementById("output");
-      output.innerHTML = "";
+      try {
+        const snapshot = await db.ref("statusHistory").once("value");
+        const data = snapshot.val();
+        const output = document.getElementById("output");
+        output.innerHTML = "";
 
-      if (!data) {
-        output.innerText = "Žádná data nebyla nalezena.";
-        return;
-      }
+        if (!data) {
+          output.innerText = "Žádná data nebyla nalezena.";
+          return;
+        }
 
-      Object.keys(data).forEach(user => {
-        const userData = data[user];
-        const statusTotals = {
-          Active: 0,
-          Break: 0,
-          Inactive: 0
-        };
+        Object.keys(data).forEach(user => {
+          const userData = data[user];
+          const statusTotals = {
+            Active: 0,
+            Break: 0,
+            Inactive: 0
+          };
 
-        Object.keys(userData).forEach(date => {
-          if (!date.startsWith(currentYear.toString())) return;
+          Object.keys(userData).forEach(date => {
+            if (date.substring(0, 4) !== currentYear.toString()) return;
 
-          const dayData = userData[date];
-          for (let i = 0; i < dayData.length - 1; i++) {
-            const current = dayData[i];
-            const next = dayData[i + 1];
-            const duration = next.timestamp - current.timestamp;
-            if (statusTotals[current.status] !== undefined) {
-              statusTotals[current.status] += duration;
+            const dayData = userData[date];
+            for (let i = 0; i < dayData.length - 1; i++) {
+              const current = dayData[i];
+              const next = dayData[i + 1];
+              const duration = next.timestamp - current.timestamp;
+              if (statusTotals[current.status] !== undefined) {
+                statusTotals[current.status] += duration;
+              }
             }
-          }
 
-          // Pokud poslední status pokračuje do půlnoci
-          const last = dayData[dayData.length - 1];
-          const midnight = new Date(date + "T23:59:59").getTime();
-          if (last && statusTotals[last.status] !== undefined && last.timestamp < midnight) {
-            statusTotals[last.status] += midnight - last.timestamp;
-          }
+            // Poslední status trvá do půlnoci dalšího dne
+            const last = dayData[dayData.length - 1];
+            const midnight = new Date(date);
+            midnight.setDate(midnight.getDate() + 1);
+            midnight.setHours(0,0,0,0);
+            const midnightTime = midnight.getTime();
+
+            if (last && statusTotals[last.status] !== undefined && last.timestamp < midnightTime) {
+              statusTotals[last.status] += midnightTime - last.timestamp;
+            }
+          });
+
+          // Vykreslení výsledku
+          const div = document.createElement("div");
+          div.className = "user";
+          div.innerHTML = `<h2>${user}</h2>
+            <div class="status-time">🟢 Active: ${msToTime(statusTotals.Active)}</div>
+            <div class="status-time">🟠 Break: ${msToTime(statusTotals.Break)}</div>
+            <div class="status-time">🔴 Inactive: ${msToTime(statusTotals.Inactive)}</div>`;
+          output.appendChild(div);
         });
-
-        // Vykreslení
-        const div = document.createElement("div");
-        div.className = "user";
-        div.innerHTML = `<h2>${user}</h2>
-          <div class="status-time">🟢 Active: ${msToTime(statusTotals.Active)}</div>
-          <div class="status-time">🟠 Break: ${msToTime(statusTotals.Break)}</div>
-          <div class="status-time">🔴 Inactive: ${msToTime(statusTotals.Inactive)}</div>`;
-        output.appendChild(div);
-      });
+      } catch (error) {
+        document.getElementById("output").innerText = "Chyba při načítání dat: " + error.message;
+        console.error(error);
+      }
     }
 
     loadData();
