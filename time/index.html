@@ -1,34 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>Pracovní časy</title>
+  <title>Součet stavů</title>
   <style>
     body {
       font-family: sans-serif;
-      padding: 20px;
       background: #f8f8f8;
+      margin: 0;
+      padding: 20px;
     }
     h1 {
-      margin-bottom: 10px;
-    }
-    h2 {
-      margin-top: 40px;
+      margin-bottom: 20px;
     }
     .user {
-      margin-bottom: 30px;
-      padding: 15px;
       background: white;
       border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .status-time {
-      margin-left: 15px;
+      margin: 5px 0 0 15px;
     }
   </style>
 </head>
 <body>
-  <h1>Součet pracovních stavů za rok <span id="year"></span></h1>
+  <h1>Součet stavů za rok <span id="year"></span></h1>
   <div id="output">Načítání dat...</div>
 
   <!-- Firebase SDK -->
@@ -36,85 +34,82 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
-  authDomain: "time-897fc.firebaseapp.com",
-  projectId: "time-897fc",
-  storageBucket: "time-897fc.firebasestorage.app",
-  messagingSenderId: "420987750968",
-  appId: "1:420987750968:web:240c4462bad41137f6b4cd",
-  measurementId: "G-W3WVS2FM3D"
-};
+    // ✅ Firebase konfigurace (správná URL DB!)
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0klfrJWi5xNBF3EUkEmVVOE0F8CvjNRw",
+      authDomain: "time-897fc.firebaseapp.com",
+      projectId: "time-897fc",
+      databaseURL: "https://time-897fc-default-rtdb.europe-west1.firebasedatabase.app",
+      storageBucket: "time-897fc.appspot.com",
+      messagingSenderId: "420987750968",
+      appId: "1:420987750968:web:240c4462bad41137f6b4cd",
+      measurementId: "G-W3WVS2FM3D"
+    };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     const currentYear = new Date().getFullYear();
     document.getElementById("year").innerText = currentYear;
 
-    function msToTime(duration) {
-      const minutes = Math.floor((duration / (1000 * 60)) % 60);
-      const hours = Math.floor(duration / (1000 * 60 * 60));
-      return `${hours}h ${minutes}m`;
+    function msToTime(ms) {
+      const h = Math.floor(ms / (1000 * 60 * 60));
+      const m = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      return `${h}h ${m}m`;
     }
 
     async function loadData() {
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+
       try {
         const snapshot = await db.ref("statusHistory").once("value");
         const data = snapshot.val();
-        const output = document.getElementById("output");
-        output.innerHTML = "";
 
         if (!data) {
-          output.innerText = "Žádná data nebyla nalezena.";
+          output.innerText = "Žádná data nenalezena.";
           return;
         }
 
-        Object.keys(data).forEach(user => {
-          const userData = data[user];
-          const statusTotals = {
-            Active: 0,
-            Break: 0,
-            Inactive: 0
-          };
+        Object.entries(data).forEach(([user, days]) => {
+          const totals = { Active: 0, Break: 0, Inactive: 0 };
 
-          Object.keys(userData).forEach(date => {
-            if (date.substring(0, 4) !== currentYear.toString()) return;
+          Object.entries(days).forEach(([date, logs]) => {
+            if (!date.startsWith(currentYear.toString())) return;
 
-            const dayData = userData[date];
-            for (let i = 0; i < dayData.length - 1; i++) {
-              const current = dayData[i];
-              const next = dayData[i + 1];
+            // Seřazení podle času
+            logs.sort((a, b) => a.timestamp - b.timestamp);
+
+            for (let i = 0; i < logs.length - 1; i++) {
+              const current = logs[i];
+              const next = logs[i + 1];
               const duration = next.timestamp - current.timestamp;
-              if (statusTotals[current.status] !== undefined) {
-                statusTotals[current.status] += duration;
+
+              if (totals[current.status] !== undefined) {
+                totals[current.status] += duration;
               }
             }
 
-            // Poslední status trvá do půlnoci dalšího dne
-            const last = dayData[dayData.length - 1];
-            const midnight = new Date(date);
-            midnight.setDate(midnight.getDate() + 1);
-            midnight.setHours(0,0,0,0);
-            const midnightTime = midnight.getTime();
-
-            if (last && statusTotals[last.status] !== undefined && last.timestamp < midnightTime) {
-              statusTotals[last.status] += midnightTime - last.timestamp;
+            // Poslední stav dne - pokračuje do půlnoci
+            const last = logs[logs.length - 1];
+            const midnight = new Date(date + "T23:59:59").getTime();
+            if (last && last.timestamp < midnight && totals[last.status] !== undefined) {
+              totals[last.status] += midnight - last.timestamp;
             }
           });
 
-          // Vykreslení výsledku
+          // Vykreslení uživatele
           const div = document.createElement("div");
           div.className = "user";
           div.innerHTML = `<h2>${user}</h2>
-            <div class="status-time">🟢 Active: ${msToTime(statusTotals.Active)}</div>
-            <div class="status-time">🟠 Break: ${msToTime(statusTotals.Break)}</div>
-            <div class="status-time">🔴 Inactive: ${msToTime(statusTotals.Inactive)}</div>`;
+            <div class="status-time">🟢 Active: ${msToTime(totals.Active)}</div>
+            <div class="status-time">🟠 Break: ${msToTime(totals.Break)}</div>
+            <div class="status-time">🔴 Inactive: ${msToTime(totals.Inactive)}</div>`;
           output.appendChild(div);
         });
-      } catch (error) {
-        document.getElementById("output").innerText = "Chyba při načítání dat: " + error.message;
-        console.error(error);
+      } catch (e) {
+        output.innerText = "Chyba při načítání dat.";
+        console.error(e);
       }
     }
 
