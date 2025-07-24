@@ -71,16 +71,21 @@
   }
 
   .user {
-    background: #111;
+    background: rgba(255, 255, 255, 0.1); /* liquid glass pozadí */
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border-radius: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 15px;
-    border-radius: 8px;
     width: 45%;
     min-width: 280px;
     box-sizing: border-box;
 
     display: flex;
     flex-direction: column;
-    height: 400px; /* pevná výška */
+    height: 400px;
+    color: white;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
 
   .user h3 {
@@ -114,7 +119,7 @@
     display: flex;
     justify-content: space-between;
     padding: 3px 0;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   }
   .day div:first-child {
     flex: 1;
@@ -126,11 +131,6 @@
 
   .time-text {
     cursor: default;
-    background: transparent;
-    border: none;
-    font-size: 14px;
-    line-height: 1.3;
-    color: white;
   }
   .time-edit {
     display: none;
@@ -334,7 +334,6 @@
           if(data.status) statusData[userId] = data.status;
           if(data.calendar) calendarData[userId] = data.calendar;
         }
-        // Po načtení posledního uživatele vykreslíme
         if(userId === users[users.length -1]){
           renderAllUsers();
         }
@@ -348,7 +347,7 @@
         status: statusData[userId] || "inactive",
         calendar: calendarData[userId] || {}
       };
-      db.ref("users/" + userId).set(data);
+      db.ref("users/"+userId).set(data);
     });
     alert("Data uložena.");
   }
