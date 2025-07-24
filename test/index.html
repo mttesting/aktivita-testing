@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Worker Activity</title>
   <style>
     body {
@@ -12,18 +12,15 @@
       background: #000;
       color: white;
     }
-
     .container {
       padding: 20px;
       max-width: 1000px;
       margin: auto;
     }
-
     h1, h2 {
       text-align: center;
       margin: 10px 0;
     }
-
     .control {
       position: fixed;
       top: 10px;
@@ -31,8 +28,9 @@
       font-size: 14px;
       color: #bbb;
       cursor: pointer;
+      user-select: none;
+      z-index: 20;
     }
-
     .popup {
       position: fixed;
       top: 50%;
@@ -42,41 +40,44 @@
       padding: 20px;
       border-radius: 8px;
       display: none;
-      z-index: 10;
+      z-index: 30;
+      width: 280px;
+      box-sizing: border-box;
     }
-
     .popup input {
       background: #222;
       border: 1px solid #444;
       color: white;
-      padding: 5px;
+      padding: 8px;
       width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      border-radius: 4px;
     }
-
     .popup button {
-      margin-top: 10px;
+      margin-top: 12px;
       width: 100%;
-      padding: 6px;
+      padding: 8px;
       background: #6e00ff;
       border: none;
       color: white;
+      font-weight: bold;
+      font-size: 16px;
       cursor: pointer;
+      border-radius: 4px;
     }
-
     .section-title {
       margin-top: 30px;
       font-size: 1.2rem;
       border-bottom: 1px solid #555;
       padding-bottom: 5px;
     }
-
     .users {
       display: flex;
       flex-wrap: wrap;
       gap: 15px;
       margin-top: 10px;
     }
-
     .user-card {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -84,8 +85,8 @@
       padding: 15px;
       flex: 1 1 45%;
       min-width: 250px;
+      box-sizing: border-box;
     }
-
     .user-header {
       display: flex;
       justify-content: space-between;
@@ -93,41 +94,38 @@
       font-weight: bold;
       margin-bottom: 5px;
     }
-
     .status {
       font-weight: bold;
+      user-select: none;
     }
-
     .status.active {
       color: #00ff00;
     }
-
     .status.break {
       color: orange;
     }
-
     .status.inactive {
       color: red;
     }
-
     .calendar {
       margin-top: 10px;
     }
-
     .day-row {
       display: flex;
       justify-content: space-between;
       margin: 3px 0;
     }
-
     .editable {
       cursor: pointer;
+      user-select: none;
+      background: transparent;
+      border: none;
+      color: white;
+      min-width: 100px;
+      text-align: right;
+      font-family: inherit;
+      font-size: 14px;
     }
-
-    .hidden {
-      display: none;
-    }
-
     select {
       margin-top: 5px;
       background: #222;
@@ -135,8 +133,13 @@
       border: 1px solid #444;
       padding: 4px;
       border-radius: 5px;
+      font-size: 14px;
+      display: none;
+      width: 100px;
     }
-
+    select.visible {
+      display: inline-block;
+    }
     @media (max-width: 600px) {
       .users {
         flex-direction: column;
@@ -149,7 +152,7 @@
 <div class="control" onclick="togglePopup()">control</div>
 
 <div class="popup" id="popup">
-  <input type="password" id="password" placeholder="Enter password">
+  <input type="password" id="password" placeholder="Enter password" autocomplete="off" />
   <button onclick="checkPassword()">Submit</button>
 </div>
 
@@ -164,11 +167,7 @@
         <span>Koťák</span>
         <span class="status active" id="status-kotak">Active</span>
       </div>
-      <select class="hidden" id="select-kotak" onchange="updateStatus('kotak')">
-        <option value="active">Active</option>
-        <option value="break">Break</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <select id="select-kotak" onchange="updateStatus('kotak')"></select>
       <div class="calendar" id="calendar-kotak"></div>
     </div>
 
@@ -177,11 +176,7 @@
         <span>MrTomiCZ</span>
         <span class="status inactive" id="status-mrtomicz">Inactive</span>
       </div>
-      <select class="hidden" id="select-mrtomicz" onchange="updateStatus('mrtomicz')">
-        <option value="active">Active</option>
-        <option value="break">Break</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <select id="select-mrtomicz" onchange="updateStatus('mrtomicz')"></select>
       <div class="calendar" id="calendar-mrtomicz"></div>
     </div>
   </div>
@@ -193,11 +188,7 @@
         <span>JPmanOF</span>
         <span class="status break" id="status-jpmanof">Break</span>
       </div>
-      <select class="hidden" id="select-jpmanof" onchange="updateStatus('jpmanof')">
-        <option value="active">Active</option>
-        <option value="break">Break</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <select id="select-jpmanof" onchange="updateStatus('jpmanof')"></select>
       <div class="calendar" id="calendar-jpmanof"></div>
     </div>
 
@@ -206,11 +197,7 @@
         <span>kubali</span>
         <span class="status active" id="status-kubali">Active</span>
       </div>
-      <select class="hidden" id="select-kubali" onchange="updateStatus('kubali')">
-        <option value="active">Active</option>
-        <option value="break">Break</option>
-        <option value="inactive">Inactive</option>
-      </select>
+      <select id="select-kubali" onchange="updateStatus('kubali')"></select>
       <div class="calendar" id="calendar-kubali"></div>
     </div>
   </div>
@@ -229,8 +216,27 @@
     "Sunday": "9:00 - 16:00"
   };
 
+  // Výchozí statusy, aby se dropdowny nastavil správně
+  const defaultStatuses = {
+    "kotak": "active",
+    "mrtomicz": "inactive",
+    "jpmanof": "break",
+    "kubali": "active"
+  };
+
   const calendarData = {};
   let canEdit = false;
+
+  function createStatusOptions(selected) {
+    const options = [
+      { val: "active", label: "Active" },
+      { val: "break", label: "Break" },
+      { val: "inactive", label: "Inactive" },
+    ];
+    return options.map(o => 
+      `<option value="${o.val}"${o.val === selected ? " selected" : ""}>${o.label}</option>`
+    ).join("");
+  }
 
   function renderCalendar(userId) {
     const cal = document.getElementById("calendar-" + userId);
@@ -242,27 +248,37 @@
     days.forEach(day => {
       const row = document.createElement("div");
       row.className = "day-row";
-      const timeSpan = document.createElement("span");
-      timeSpan.textContent = day;
-      const hourSpan = document.createElement("span");
-      hourSpan.textContent = calendarData[userId][day];
-      hourSpan.className = "editable";
-      hourSpan.onclick = () => {
+
+      const dayName = document.createElement("span");
+      dayName.textContent = day;
+
+      const hoursSpan = document.createElement("span");
+      hoursSpan.textContent = calendarData[userId][day];
+      hoursSpan.className = "editable";
+      hoursSpan.onclick = () => {
         if (!canEdit) return;
         const input = prompt(`Zadej nový čas pro ${day}`, calendarData[userId][day]);
-        if (input !== null) {
-          calendarData[userId][day] = input;
+        if (input !== null && input.trim() !== "") {
+          calendarData[userId][day] = input.trim();
           renderCalendar(userId);
         }
       };
-      row.appendChild(timeSpan);
-      row.appendChild(hourSpan);
+
+      row.appendChild(dayName);
+      row.appendChild(hoursSpan);
       cal.appendChild(row);
     });
   }
 
   function togglePopup() {
-    document.getElementById("popup").style.display = "block";
+    const popup = document.getElementById("popup");
+    if (popup.style.display === "block") {
+      popup.style.display = "none";
+    } else {
+      popup.style.display = "block";
+      document.getElementById("password").value = "";
+      document.getElementById("password").focus();
+    }
   }
 
   function checkPassword() {
@@ -270,21 +286,34 @@
     if (pw === "frconzole24") {
       canEdit = true;
       document.getElementById("popup").style.display = "none";
+
+      // zobrazit dropdowny a nastavit je podle aktuálního stavu
       users.forEach(user => {
-        document.getElementById("select-" + user).classList.remove("hidden");
+        const select = document.getElementById("select-" + user);
+        select.classList.add("visible");
+        // pokud není nastaven, použij defaultní
+        const statusEl = document.getElementById("status-" + user);
+        const currentStatus = statusEl.classList.contains("active") ? "active" :
+                              statusEl.classList.contains("break") ? "break" :
+                              statusEl.classList.contains("inactive") ? "inactive" : "active";
+        select.innerHTML = createStatusOptions(currentStatus);
+        select.value = currentStatus;
       });
     } else {
       alert("Špatné heslo!");
+      canEdit = false;
     }
   }
 
   function updateStatus(userId) {
-    const val = document.getElementById("select-" + userId).value;
-    const status = document.getElementById("status-" + userId);
-    status.textContent = val.charAt(0).toUpperCase() + val.slice(1);
-    status.className = "status " + val;
+    const select = document.getElementById("select-" + userId);
+    const val = select.value;
+    const statusEl = document.getElementById("status-" + userId);
+    statusEl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+    statusEl.className = "status " + val;
   }
 
+  // inicializace kalendářů
   users.forEach(user => renderCalendar(user));
 </script>
 
