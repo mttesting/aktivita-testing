@@ -8,7 +8,7 @@
     body {
       margin: 0;
       font-family: sans-serif;
-      background: linear-gradient(120deg, #6a00ff, #000000);
+      background-color: #000;
       color: white;
       padding: 20px;
     }
@@ -70,8 +70,21 @@
       min-width: 250px;
     }
 
-    .status {
-      margin: 10px 0;
+    .status-display {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .status-display.active {
+      color: #00c853;
+    }
+
+    .status-display.break {
+      color: #ffab00;
+    }
+
+    .status-display.inactive {
+      color: #d50000;
     }
 
     .status select {
@@ -79,12 +92,15 @@
       border: none;
       border-radius: 5px;
       font-weight: bold;
+      margin-top: 5px;
+      display: none;
     }
 
     .calendar {
       display: flex;
       flex-direction: column;
       gap: 5px;
+      margin-top: 10px;
     }
 
     .calendar-row {
@@ -97,20 +113,7 @@
       padding: 5px;
       border-radius: 5px;
       width: 100px;
-    }
-
-    .status select[data-value="Active"] {
-      background-color: #00c853;
-      color: white;
-    }
-
-    .status select[data-value="Break"] {
-      background-color: #ffab00;
-      color: black;
-    }
-
-    .status select[data-value="Inactive"] {
-      background-color: #d50000;
+      background-color: #111;
       color: white;
     }
 
@@ -138,10 +141,11 @@
     <div class="section">
       <h3>Owners</h3>
       <div class="people">
-        <div class="person">
+        <div class="person" data-person>
           <strong>Koťák</strong>
           <div class="status">
-            <select class="status-select" disabled onchange="setColor(this)">
+            <div class="status-display" data-status>Active</div>
+            <select onchange="updateStatus(this)">
               <option value="Active">Active</option>
               <option value="Break">Break</option>
               <option value="Inactive">Inactive</option>
@@ -157,69 +161,9 @@
             <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
           </div>
         </div>
-        <div class="person">
-          <strong>MrTomiCZ</strong>
-          <div class="status">
-            <select class="status-select" disabled onchange="setColor(this)">
-              <option value="Active">Active</option>
-              <option value="Break">Break</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="section">
-      <h3>Main Workers</h3>
-      <div class="people">
-        <div class="person">
-          <strong>JPmanOF</strong>
-          <div class="status">
-            <select class="status-select" disabled onchange="setColor(this)">
-              <option value="Active">Active</option>
-              <option value="Break">Break</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-          </div>
-        </div>
-        <div class="person">
-          <strong>kubali</strong>
-          <div class="status">
-            <select class="status-select" disabled onchange="setColor(this)">
-              <option value="Active">Active</option>
-              <option value="Break">Break</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div class="calendar">
-            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
-          </div>
-        </div>
+        <!-- Přidej další osoby stejně, např. MrTomiCZ, JPmanOF, kubali atd. -->
+
       </div>
     </div>
   </div>
@@ -230,23 +174,38 @@
       if (input === "frconzole24") {
         document.querySelector('.popup').style.display = 'none';
 
-        // Enable all editable fields
-        document.querySelectorAll('select').forEach(s => {
-          s.disabled = false;
-          setColor(s);
+        document.querySelectorAll('.person').forEach(person => {
+          person.querySelectorAll('select').forEach(select => {
+            select.style.display = 'block';
+          });
+          person.querySelectorAll('input[type="text"]').forEach(input => {
+            input.disabled = false;
+          });
         });
-        document.querySelectorAll('input[type="text"]').forEach(i => i.disabled = false);
       } else {
         alert("Wrong password.");
       }
     }
 
-    function setColor(select) {
-      select.setAttribute('data-value', select.value);
+    function updateStatus(select) {
+      const statusText = select.parentElement.querySelector('[data-status]');
+      const value = select.value;
+      statusText.textContent = value;
+
+      statusText.classList.remove('active', 'break', 'inactive');
+
+      if (value === "Active") statusText.classList.add('active');
+      else if (value === "Break") statusText.classList.add('break');
+      else if (value === "Inactive") statusText.classList.add('inactive');
     }
 
-    // Initialize select styles
-    document.querySelectorAll('select').forEach(setColor);
+    // Init barvy statusů při načtení
+    document.querySelectorAll('.status-display').forEach(el => {
+      const text = el.textContent.trim();
+      if (text === "Active") el.classList.add('active');
+      else if (text === "Break") el.classList.add('break');
+      else if (text === "Inactive") el.classList.add('inactive');
+    });
   </script>
 </body>
 </html>
