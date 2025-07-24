@@ -1,27 +1,39 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Časová aktivita</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <title>Pracovní časy</title>
   <style>
     body {
-      font-family: monospace;
+      font-family: sans-serif;
       padding: 20px;
-      background: #f0f0f0;
+      background: #f8f8f8;
+    }
+    h1 {
+      margin-bottom: 10px;
     }
     h2 {
-      margin-top: 30px;
+      margin-top: 40px;
     }
-    .status {
+    .user {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .status-time {
       margin-left: 15px;
     }
   </style>
 </head>
 <body>
-  <h1>Součet stavů za dnešek (00:00–24:00)</h1>
-  <div id="output">Načítám data…</div>
+  <h1>Součet pracovních stavů za rok <span id="year"></span></h1>
+  <div id="output">Načítání dat...</div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
     const firebaseConfig = {
@@ -38,56 +50,67 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const output = document.getElementById("output");
+    const currentYear = new Date().getFullYear();
+    document.getElementById("year").innerText = currentYear;
 
-    function msToHMS(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
+    function msToTime(duration) {
+      const minutes = Math.floor((duration / (1000 * 60)) % 60);
+      const hours = Math.floor(duration / (1000 * 60 * 60));
       return `${hours}h ${minutes}m`;
     }
 
-    function processHistory(data) {
-      const today = new Date();
-      const dateStr = today.toISOString().split("T")[0]; // např. "2025-07-24"
-      let html = "";
+    async function loadData() {
+      const snapshot = await db.ref("statusHistory").once("value");
+      const data = snapshot.val();
+      const output = document.getElementById("output");
+      output.innerHTML = "";
 
-      for (const user in data) {
-        const logs = data[user][dateStr];
-        if (!logs) continue;
+      if (!data) {
+        output.innerText = "Žádná data nebyla nalezena.";
+        return;
+      }
 
-        const statusDurations = {
+      Object.keys(data).forEach(user => {
+        const userData = data[user];
+        const statusTotals = {
           Active: 0,
           Break: 0,
           Inactive: 0
         };
 
-        const sortedLogs = logs.sort((a, b) => a.timestamp - b.timestamp);
-        for (let i = 0; i < sortedLogs.length; i++) {
-          const current = sortedLogs[i];
-          const next = sortedLogs[i + 1];
-          const endTime = next ? next.timestamp : new Date().getTime();
-          const duration = endTime - current.timestamp;
-          statusDurations[current.status] += duration;
-        }
+        Object.keys(userData).forEach(date => {
+          if (!date.startsWith(currentYear.toString())) return;
 
-        html += `<h2>${user}</h2>`;
-        for (const [status, time] of Object.entries(statusDurations)) {
-          html += `<div class="status">${status}: ${msToHMS(time)}</div>`;
-        }
-      }
+          const dayData = userData[date];
+          for (let i = 0; i < dayData.length - 1; i++) {
+            const current = dayData[i];
+            const next = dayData[i + 1];
+            const duration = next.timestamp - current.timestamp;
+            if (statusTotals[current.status] !== undefined) {
+              statusTotals[current.status] += duration;
+            }
+          }
 
-      output.innerHTML = html || "Žádná data pro dnešní den.";
+          // Pokud poslední status pokračuje do půlnoci
+          const last = dayData[dayData.length - 1];
+          const midnight = new Date(date + "T23:59:59").getTime();
+          if (last && statusTotals[last.status] !== undefined && last.timestamp < midnight) {
+            statusTotals[last.status] += midnight - last.timestamp;
+          }
+        });
+
+        // Vykreslení
+        const div = document.createElement("div");
+        div.className = "user";
+        div.innerHTML = `<h2>${user}</h2>
+          <div class="status-time">🟢 Active: ${msToTime(statusTotals.Active)}</div>
+          <div class="status-time">🟠 Break: ${msToTime(statusTotals.Break)}</div>
+          <div class="status-time">🔴 Inactive: ${msToTime(statusTotals.Inactive)}</div>`;
+        output.appendChild(div);
+      });
     }
 
-    db.ref("statusHistory").once("value")
-      .then(snapshot => {
-        const data = snapshot.val();
-        processHistory(data);
-      })
-      .catch(error => {
-        output.innerText = "Chyba při načítání dat: " + error.message;
-      });
+    loadData();
   </script>
 </body>
 </html>
