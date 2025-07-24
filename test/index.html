@@ -6,90 +6,61 @@
 <title>Pracovní Aktivita</title>
 <style>
   body {
+    /* Gradient z fialové (#6e00ff) do černé pod 120 stupni */
     background: linear-gradient(120deg, #6e00ff, #000);
     color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-      Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-family: Arial, sans-serif;
     margin: 0; padding: 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   h1 {
     text-align: center;
     margin-bottom: 30px;
-    font-weight: 700;
-    text-shadow: 0 0 10px rgba(110, 0, 255, 0.7);
   }
 
   .control {
     position: fixed;
     top: 10px; right: 20px;
     cursor: pointer;
-    color: #ccc;
+    color: #aaa;
     user-select: none;
     font-size: 14px;
     z-index: 1000;
-    font-weight: 600;
-    transition: color 0.3s ease;
-  }
-  .control:hover {
-    color: #9b7aff;
   }
 
   #popup {
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(255 255 255 / 0.1);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border-radius: 35px;
-    border: 1px solid rgba(255 255 255 / 0.2);
-    padding: 20px 25px;
+    background: #222;
+    padding: 15px;
+    border-radius: 8px;
     display: none;
     z-index: 1100;
-    width: 300px;
-    box-shadow:
-      0 8px 32px 0 rgba(110, 0, 255, 0.2),
-      0 0 10px 2px rgba(110, 0, 255, 0.15);
+    width: 280px;
   }
 
   #popup input {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px;
     font-size: 16px;
-    border-radius: 20px;
+    border-radius: 5px;
     border: none;
-    background: rgba(255 255 255 / 0.15);
+    background: #444;
     color: white;
-    outline: none;
-    transition: background 0.3s ease;
-  }
-  #popup input::placeholder {
-    color: #ddd;
-  }
-  #popup input:focus {
-    background: rgba(255 255 255 / 0.3);
   }
 
   #popup button {
-    margin-top: 15px;
+    margin-top: 10px;
     width: 100%;
-    padding: 12px 0;
+    padding: 10px;
     background: #6e00ff;
     border: none;
     color: white;
-    font-weight: 700;
+    font-weight: bold;
     font-size: 16px;
     cursor: pointer;
-    border-radius: 30px;
-    box-shadow:
-      0 4px 15px 0 rgba(110, 0, 255, 0.8);
-    transition: background 0.3s ease;
-  }
-  #popup button:hover {
-    background: #7e1aff;
+    border-radius: 5px;
   }
 
   #usersContainer {
@@ -100,88 +71,50 @@
   }
 
   .user {
-    background: rgba(255 255 255 / 0.1);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border-radius: 35px;
-    border: 1px solid rgba(255 255 255 / 0.2);
-    padding: 20px 25px;
+    background: #111;
+    padding: 15px;
+    border-radius: 8px;
     width: 45%;
     min-width: 280px;
     box-sizing: border-box;
+
     display: flex;
     flex-direction: column;
-    height: 400px;
-
-    box-shadow:
-      0 8px 32px 0 rgba(110, 0, 255, 0.15),
-      0 0 12px 3px rgba(110, 0, 255, 0.1);
-    transition: box-shadow 0.3s ease;
-  }
-  .user:hover {
-    box-shadow:
-      0 12px 36px 0 rgba(110, 0, 255, 0.25),
-      0 0 15px 4px rgba(110, 0, 255, 0.2);
+    height: 400px; /* pevná výška */
   }
 
   .user h3 {
-    margin: 0 0 10px 0;
-    font-weight: 700;
-    text-shadow: 0 0 8px rgba(110, 0, 255, 0.7);
+    margin: 0 0 5px 0;
   }
 
   .status {
-    font-weight: 700;
+    font-weight: bold;
     margin-bottom: 10px;
-    font-size: 18px;
-    user-select: none;
   }
 
-  .status.active { color: #5efc74; }
-  .status.break { color: #ffaa33; }
-  .status.inactive { color: #ff4444; }
+  .status.active { color: #0f0; }
+  .status.break { color: orange; }
+  .status.inactive { color: red; }
 
   .status-select {
     display: none;
-    margin-bottom: 15px;
-    border-radius: 25px;
-    padding: 6px 10px;
-    font-size: 16px;
-    background: rgba(255 255 255 / 0.15);
-    color: white;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    transition: background 0.3s ease;
+    margin-bottom: 10px;
   }
   .status-select.visible {
     display: block;
-  }
-  .status-select:hover {
-    background: rgba(255 255 255 / 0.3);
   }
 
   .calendar {
     flex-grow: 1;
     overflow-y: auto;
     margin-top: 10px;
-    border-radius: 25px;
-    border: 1px solid rgba(255 255 255 / 0.2);
-    padding: 10px 15px;
-    background: rgba(255 255 255 / 0.07);
-    box-shadow: inset 0 0 20px 3px rgba(110, 0, 255, 0.1);
   }
 
   .day {
     display: flex;
     justify-content: space-between;
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(255 255 255 / 0.1);
-    font-weight: 600;
-    font-size: 15px;
-  }
-  .day:last-child {
-    border-bottom: none;
+    padding: 3px 0;
+    border-bottom: 1px solid #222;
   }
   .day div:first-child {
     flex: 1;
@@ -189,7 +122,6 @@
   .day div:last-child {
     flex: 1;
     text-align: right;
-    font-family: monospace;
   }
 
   .time-text {
@@ -198,44 +130,32 @@
   .time-edit {
     display: none;
     width: 100%;
-    background: transparent;
+    background: #222;
     color: white;
     border: none;
-    font-size: 15px;
-    font-family: monospace;
-    border-radius: 8px;
-    padding: 3px 6px;
+    font-size: 14px;
+    border-radius: 3px;
+    padding: 3px 5px;
     box-sizing: border-box;
-    outline: none;
   }
   .time-edit.visible {
     display: inline-block;
   }
-  .time-edit:focus {
-    background: rgba(255 255 255 / 0.15);
-    box-shadow: 0 0 5px 1px #8e52ff;
-  }
 
   #saveBtn {
-    padding: 12px 25px;
-    font-size: 18px;
+    padding: 10px 15px;
+    font-size: 16px;
     background: #6e00ff;
     color: white;
     border: none;
-    border-radius: 30px;
+    border-radius: 5px;
     cursor: pointer;
     display: none;
-    margin: 20px auto 0 auto;
-    font-weight: 700;
-    box-shadow:
-      0 5px 20px 0 rgba(110, 0, 255, 0.75);
-    transition: background 0.3s ease;
+    margin-top: 20px;
+    align-self: center;
   }
   #saveBtn.visible {
     display: block;
-  }
-  #saveBtn:hover {
-    background: #7e1aff;
   }
 
   /* Responzivní pro menší obrazovky */
@@ -246,6 +166,7 @@
     }
     .calendar {
       max-height: 300px;
+      overflow-y: auto;
     }
   }
 </style>
@@ -333,7 +254,7 @@
       let html = `
         <h3>${userName}</h3>
         <div class="status ${statusClass}" id="status-${userId}">${capitalize(status)}</div>
-        <select class="status-select ${canEdit ? "visible" : ""}" id="select-${userId}">
+        <select class="status-select" id="select-${userId}">
           <option value="active">Active</option>
           <option value="break">Break</option>
           <option value="inactive">Inactive</option>
@@ -348,6 +269,86 @@
             <div>${day}</div>
             <div>
               <span class="time-text" id="text-${userId}-${day}">${time}</span>
-              <input type="text" class="time-edit ${canEdit ? "visible" : ""}" id="input-${userId}-${day}" value="${time}" />
+              <input type="text" class="time-edit" id="input-${userId}-${day}" value="${time}" />
             </div>
           </div>
+        `;
+      });
+      html += '</div>';
+
+      userDiv.innerHTML = html;
+      container.appendChild(userDiv);
+
+      const selectEl = document.getElementById("select-" + userId);
+      if(canEdit){
+        selectEl.style.display = "inline-block";
+        selectEl.value = status;
+        selectEl.onchange = () => updateStatus(userId);
+      } else {
+        selectEl.style.display = "none";
+      }
+
+      days.forEach(day => {
+        const textEl = document.getElementById(`text-${userId}-${day}`);
+        const inputEl = document.getElementById(`input-${userId}-${day}`);
+
+        if(canEdit){
+          textEl.style.display = "none";
+          inputEl.style.display = "inline-block";
+
+          inputEl.oninput = () => {
+            if(!calendarData[userId]) calendarData[userId] = {};
+            calendarData[userId][day] = inputEl.value;
+          };
+        } else {
+          textEl.style.display = "inline-block";
+          inputEl.style.display = "none";
+        }
+      });
+    });
+  }
+
+  function updateStatus(userId){
+    const sel = document.getElementById("select-" + userId);
+    const newStatus = sel.value;
+    statusData[userId] = newStatus;
+    const statusDiv = document.getElementById("status-" + userId);
+    statusDiv.textContent = capitalize(newStatus);
+    statusDiv.className = "status " + newStatus;
+  }
+
+  function capitalize(s){
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function loadData(){
+    users.forEach(userId => {
+      db.ref("users/"+userId).once("value").then(snapshot => {
+        const data = snapshot.val();
+        if(data){
+          if(data.status) statusData[userId] = data.status;
+          if(data.calendar) calendarData[userId] = data.calendar;
+        }
+        if(userId === users[users.length -1]){
+          renderAllUsers();
+        }
+      });
+    });
+  }
+
+  function saveAll(){
+    users.forEach(userId => {
+      const data = {
+        status: statusData[userId] || "inactive",
+        calendar: calendarData[userId] || {}
+      };
+      db.ref("users/" + userId).set(data);
+    });
+    alert("Data uložena.");
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>
