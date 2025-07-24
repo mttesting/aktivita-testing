@@ -228,7 +228,7 @@
     const input = document.getElementById("passwordInput");
     const fets = await fetch("/api/pwcheck?pw="+input.value);
     const resp = await fets.text();
-    if (resp == true) {
+    if (resp === "true") {
       canEdit = true;
       togglePopup();
       renderAllUsers();
