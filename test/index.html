@@ -10,7 +10,23 @@
     color: #fff;
     font-family: Arial, sans-serif;
     margin: 0; padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
+
+  header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
   .control {
     position: fixed;
     top: 10px; right: 20px;
@@ -20,6 +36,7 @@
     font-size: 14px;
     z-index: 1000;
   }
+
   #popup {
     position: fixed;
     top: 50%; left: 50%;
@@ -52,12 +69,23 @@
     cursor: pointer;
     border-radius: 5px;
   }
+
+  #usersContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
   .user {
     background: #111;
     padding: 15px;
-    margin-bottom: 15px;
     border-radius: 8px;
+    width: 45%; /* cca polovina šířky, s mezerou */
+    box-sizing: border-box;
+    min-width: 280px; /* aby to nebylo moc malé */
   }
+
   .user h3 {
     margin: 0 0 5px 0;
   }
@@ -75,6 +103,11 @@
   }
   .status-select.visible {
     display: block;
+  }
+
+  .calendar {
+    max-height: 320px;
+    overflow-y: auto;
   }
 
   .day {
@@ -111,23 +144,34 @@
     border-radius: 5px;
     cursor: pointer;
     display: none;
-    margin-top: 20px;
+    margin: 20px auto 0;
+    width: 200px;
   }
   #saveBtn.visible {
     display: block;
+  }
+
+  /* Responsive pro mobil */
+  @media (max-width: 650px) {
+    .user {
+      width: 100%;
+      min-width: auto;
+    }
   }
 </style>
 </head>
 <body>
 
+<header>
+  <h1>Pracovní Aktivita</h1>
+</header>
+
 <div class="control" onclick="togglePopup()">control</div>
 
-<div id="popup" onclick="if(event.target===this) togglePopup()">
+<div id="popup">
   <input type="password" id="passwordInput" placeholder="Zadej heslo" autocomplete="off" />
   <button onclick="checkPassword()">Potvrdit</button>
 </div>
-
-<h1>Pracovní Aktivita</h1>
 
 <div id="usersContainer">Loading...</div>
 
@@ -138,16 +182,17 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
+  // --- TVŮJ FIREBASE CONFIG ZDE ---
   const firebaseConfig = {
-    apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
-    authDomain: "status2-ccf4d.firebaseapp.com",
-    databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "status2-ccf4d",
-    storageBucket: "status2-ccf4d.appspot.com",  // Opraveno na appspot.com
-    messagingSenderId: "170845328997",
-    appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
-    measurementId: "G-E9TSV3D5K9"
-  };
+  apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
+  authDomain: "status2-ccf4d.firebaseapp.com",
+  databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "status2-ccf4d",
+  storageBucket: "status2-ccf4d.firebasestorage.app",
+  messagingSenderId: "170845328997",
+  appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
+  measurementId: "G-E9TSV3D5K9"
+};
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -163,12 +208,7 @@
 
   function togglePopup() {
     const pop = document.getElementById("popup");
-    if(pop.style.display === "block"){
-      pop.style.display = "none";
-    } else {
-      pop.style.display = "block";
-      document.getElementById("passwordInput").focus();
-    }
+    pop.style.display = pop.style.display === "block" ? "none" : "block";
   }
 
   function checkPassword() {
@@ -178,7 +218,6 @@
       togglePopup();
       renderAllUsers();
       document.getElementById("saveBtn").classList.add("visible");
-      alert("Přihlášení úspěšné!");
     } else {
       alert("Špatné heslo!");
     }
@@ -270,50 +309,42 @@
     statusEl.className = "status " + newStatus;
   }
 
-  function loadData() {
-    const ref = db.ref("users");
-    ref.on("value", (snapshot) => {
-      const data = snapshot.val();
-      if(!data){
-        alert("Žádná data v Firebase");
-        users.forEach(u => {
-          statusData[u] = "inactive";
-          calendarData[u] = {};
-        });
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function saveAll(){
+    users.forEach(userId => {
+      // Save status
+      db.ref(`status/${userId}`).set(statusData[userId] || "inactive");
+      // Save calendar
+      db.ref(`calendar/${userId}`).set(calendarData[userId] || {});
+    });
+    alert("Uloženo do Firebase.");
+  }
+
+  function loadAll() {
+    users.forEach(userId => {
+      db.ref(`status/${userId}`).get().then(snapshot => {
+        if(snapshot.exists()){
+          statusData[userId] = snapshot.val();
+        } else {
+          statusData[userId] = "inactive";
+        }
         renderAllUsers();
-        return;
-      }
-      users.forEach(u => {
-        statusData[u] = data[u]?.status || "inactive";
-        calendarData[u] = data[u]?.calendar || {};
       });
-      renderAllUsers();
-    }, (error) => {
-      alert("Chyba při načítání Firebase: " + error);
+      db.ref(`calendar/${userId}`).get().then(snapshot => {
+        if(snapshot.exists()){
+          calendarData[userId] = snapshot.val();
+        } else {
+          calendarData[userId] = {};
+        }
+        renderAllUsers();
+      });
     });
   }
 
-  function saveAll() {
-    if(!canEdit) return alert("Nemáš oprávnění upravovat.");
-
-    const updates = {};
-    users.forEach(u => {
-      updates[u] = {
-        status: statusData[u] || "inactive",
-        calendar: calendarData[u] || {}
-      };
-    });
-
-    db.ref("users").set(updates)
-      .then(() => alert("Data uložena!"))
-      .catch(e => alert("Chyba při ukládání: " + e));
-  }
-
-  function capitalize(str){
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  loadData();
+  loadAll();
 </script>
 
 </body>
