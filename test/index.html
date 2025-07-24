@@ -1,88 +1,173 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>FrCreator - Worker Activity</title>
-<style>
-  body {
-    margin:0; padding:0; font-family: Arial,sans-serif; background:#000; color:#fff;
-  }
-  .container {
-    max-width: 1000px; margin: 0 auto; padding: 20px;
-  }
-  h1, h2 {
-    text-align:center; margin: 10px 0;
-  }
-  .control {
-    position: fixed; top: 10px; right: 20px; font-size:14px; color:#bbb; cursor:pointer; user-select:none; z-index: 20;
-  }
-  .popup {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: #111; padding: 20px; border-radius: 8px; display:none; z-index: 30; width: 280px; box-sizing: border-box;
-  }
-  .popup input {
-    background: #222; border: 1px solid #444; color: white; padding: 8px; width: 100%; box-sizing: border-box; font-size:16px; border-radius:4px;
-  }
-  .popup button {
-    margin-top: 12px; width: 100%; padding: 8px; background: #6e00ff; border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; border-radius:4px;
-  }
-  .section-title {
-    margin-top: 30px; font-size: 1.2rem; border-bottom: 1px solid #555; padding-bottom: 5px;
-  }
-  .users {
-    display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;
-  }
-  .user-card {
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; flex: 1 1 45%; min-width: 250px; box-sizing: border-box;
-  }
-  .user-header {
-    display: flex; justify-content: space-between; align-items: center; font-weight: bold; margin-bottom: 5px;
-  }
-  .status {
-    font-weight: bold; user-select:none;
-  }
-  .status.active {
-    color: #00ff00;
-  }
-  .status.break {
-    color: orange;
-  }
-  .status.inactive {
-    color: red;
-  }
-  .calendar {
-    margin-top: 10px;
-  }
-  .day-row {
-    display: flex; justify-content: space-between; margin: 3px 0;
-  }
-  .editable {
-    cursor: pointer; user-select: none; background: transparent; border: none; color: white; min-width: 100px; text-align: right; font-family: inherit; font-size:14px;
-  }
-  select {
-    margin-top: 5px; background: #222; color: white; border: 1px solid #444; padding: 4px; border-radius: 5px; font-size: 14px; display: none; width: 100px;
-  }
-  select.visible {
-    display: inline-block;
-  }
-  button.save-btn {
-    margin-top: 10px; padding: 6px 12px; background: #4caf50; border: none; border-radius: 4px; color: white; font-weight: bold; cursor: pointer; font-size: 14px;
-  }
-  @media (max-width:600px) {
-    .users {
-      flex-direction: column;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Worker Activity</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
     }
-  }
-</style>
+    .container {
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h1, h2 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .control {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 14px;
+      color: #bbb;
+      cursor: pointer;
+      user-select: none;
+      z-index: 20;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+      z-index: 30;
+      width: 280px;
+      box-sizing: border-box;
+    }
+    .popup input {
+      background: #222;
+      border: 1px solid #444;
+      color: white;
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+    .popup button {
+      margin-top: 12px;
+      width: 100%;
+      padding: 8px;
+      background: #6e00ff;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+    }
+    .users {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .user-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      flex: 1 1 45%;
+      min-width: 250px;
+      box-sizing: border-box;
+    }
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .status {
+      font-weight: bold;
+      user-select: none;
+    }
+    .status.active {
+      color: #00ff00;
+    }
+    .status.break {
+      color: orange;
+    }
+    .status.inactive {
+      color: red;
+    }
+    .calendar {
+      margin-top: 10px;
+    }
+    .day-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 3px 0;
+    }
+    .editable {
+      cursor: pointer;
+      user-select: none;
+      background: transparent;
+      border: none;
+      color: white;
+      min-width: 100px;
+      text-align: right;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    select {
+      margin-top: 5px;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      padding: 4px;
+      border-radius: 5px;
+      font-size: 14px;
+      display: none;
+      width: 100px;
+    }
+    select.visible {
+      display: inline-block;
+    }
+    #save-btn {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: #6e00ff;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+      display: none;
+    }
+    #save-btn.visible {
+      display: block;
+    }
+    @media (max-width: 600px) {
+      .users {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
 
 <div class="control" onclick="togglePopup()">control</div>
 
 <div class="popup" id="popup">
-  <input type="password" id="password" placeholder="Zadej heslo" autocomplete="off" />
-  <button onclick="checkPassword()">Potvrdit</button>
+  <input type="password" id="password" placeholder="Enter password" autocomplete="off" />
+  <button onclick="checkPassword()">Submit</button>
 </div>
 
 <div class="container">
@@ -94,7 +179,7 @@
     <div class="user-card" id="kotak">
       <div class="user-header">
         <span>Koťák</span>
-        <span class="status active" id="status-kotak">Active</span>
+        <span class="status" id="status-kotak">Loading...</span>
       </div>
       <select id="select-kotak" onchange="updateStatus('kotak')"></select>
       <div class="calendar" id="calendar-kotak"></div>
@@ -103,7 +188,7 @@
     <div class="user-card" id="mrtomicz">
       <div class="user-header">
         <span>MrTomiCZ</span>
-        <span class="status inactive" id="status-mrtomicz">Inactive</span>
+        <span class="status" id="status-mrtomicz">Loading...</span>
       </div>
       <select id="select-mrtomicz" onchange="updateStatus('mrtomicz')"></select>
       <div class="calendar" id="calendar-mrtomicz"></div>
@@ -115,7 +200,7 @@
     <div class="user-card" id="jpmanof">
       <div class="user-header">
         <span>JPmanOF</span>
-        <span class="status break" id="status-jpmanof">Break</span>
+        <span class="status" id="status-jpmanof">Loading...</span>
       </div>
       <select id="select-jpmanof" onchange="updateStatus('jpmanof')"></select>
       <div class="calendar" id="calendar-jpmanof"></div>
@@ -124,183 +209,66 @@
     <div class="user-card" id="kubali">
       <div class="user-header">
         <span>kubali</span>
-        <span class="status active" id="status-kubali">Active</span>
+        <span class="status" id="status-kubali">Loading...</span>
       </div>
       <select id="select-kubali" onchange="updateStatus('kubali')"></select>
       <div class="calendar" id="calendar-kubali"></div>
     </div>
   </div>
 
-  <button class="save-btn" id="save-btn" style="display:none;" onclick="saveAllUsersToFirebase()">Uložit změny</button>
+  <button id="save-btn" onclick="saveAll()">Uložit změny</button>
 </div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-  // Firebase config - nahraď svým vlastním configem
+  // Firebase config – nahraď vlastním configem
   const firebaseConfig = {
     apiKey: "TVŮJ_API_KEY",
-    authDomain: "TVŮJ_AUTH_DOMAIN",
-    projectId: "TVŮJ_PROJECT_ID",
-    storageBucket: "TVŮJ_STORAGE_BUCKET",
-    messagingSenderId: "TVŮJ_MESSAGING_SENDER_ID",
+    authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+    databaseURL: "https://TVŮJ_PROJEKT.firebaseio.com",
+    projectId: "TVŮJ_PROJEKT",
+    storageBucket: "TVŮJ_PROJEKT.appspot.com",
+    messagingSenderId: "TVŮJ_MESSAGING_ID",
     appId: "TVŮJ_APP_ID"
   };
 
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  const db = firebase.database();
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const users = ["kotak", "mrtomicz", "jpmanof", "kubali"];
-  const defaultHours = {
-    "Monday": "9:00 - 16:00",
-    "Tuesday": "9:00 - 16:00",
-    "Wednesday": "9:00 - 16:00",
-    "Thursday": "9:00 - 16:00",
-    "Friday": "9:00 - 16:00",
-    "Saturday": "9:00 - 16:00",
-    "Sunday": "9:00 - 16:00"
-  };
 
-  let calendarData = {};  // bude mít strukturu { userId: {status: "active", hours: {Monday: "9:00 - 16:00", ...}} }
   let canEdit = false;
+  const calendarData = {}; // data načtená z Firebase
+  const statusData = {};   // statusy načtené z Firebase
 
-  // Funkce pro vytvoření možností statusu v selectu
-  function createStatusOptions(selected) {
-    const options = [
-      { val: "active", label: "Active" },
-      { val: "break", label: "Break" },
-      { val: "inactive", label: "Inactive" },
-    ];
-    return options.map(o =>
-      `<option value="${o.val}"${o.val === selected ? " selected" : ""}>${o.label}</option>`
-    ).join("");
-  }
+  // Funkce pro vykreslení kalendáře a statusu uživatele podle dat v calendarData a statusData
+  function renderUser(userId) {
+    // Status
+    const statusEl = document.getElementById("status-" + userId);
+    const select = document.getElementById("select-" + userId);
 
-  // Vykreslí kalendář a časové hodnoty pro uživatele
-  function renderCalendar(userId) {
+    let status = statusData[userId] || "inactive";
+
+    // Aktualizace textu statusu a třídy podle hodnoty
+    statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    statusEl.className = "status " + status;
+
+    // Pokud je editace povolena, zobraz dropdown pro změnu statusu
+    if (canEdit) {
+      select.classList.add("visible");
+      select.innerHTML = createStatusOptions(status);
+      select.value = status;
+    } else {
+      select.classList.remove("visible");
+    }
+
+    // Kalendář
     const cal = document.getElementById("calendar-" + userId);
     cal.innerHTML = "";
     if (!calendarData[userId]) {
-      // Pokud není data, nastav výchozí
-      calendarData[userId] = {
-        status: "active",
-        hours: {...defaultHours}
-      };
-    }
-    // Naplníme select statusy a zobrazíme
-    const select = document.getElementById("select-" + userId);
-    select.innerHTML = createStatusOptions(calendarData[userId].status);
-    select.style.display = canEdit ? "inline-block" : "none";
-
-    // Upravíme zobrazený status (barevně)
-    const statusSpan = document.getElementById("status-" + userId);
-    statusSpan.textContent = capitalize(calendarData[userId].status);
-    statusSpan.className = "status " + calendarData[userId].status;
-
-    // Pro každý den vytvoříme řádek s editovatelným časem
-    days.forEach(day => {
-      const div = document.createElement("div");
-      div.className = "day-row";
-
-      const dayLabel = document.createElement("div");
-      dayLabel.textContent = capitalize(day);
-      div.appendChild(dayLabel);
-
-      // Místo inputu použijeme contenteditable div
-      const timeDiv = document.createElement("div");
-      timeDiv.className = "editable";
-      timeDiv.contentEditable = canEdit;
-      timeDiv.spellcheck = false;
-      timeDiv.textContent = calendarData[userId].hours[day] || "";
-      timeDiv.dataset.day = day;
-      timeDiv.dataset.user = userId;
-
-      // Uložíme změnu do calendarData při focusout
-      timeDiv.addEventListener("blur", e => {
-        const u = e.target.dataset.user;
-        const d = e.target.dataset.day;
-        if (!calendarData[u]) calendarData[u] = {status:"active", hours:{}};
-        calendarData[u].hours[d] = e.target.textContent.trim();
-      });
-
-      div.appendChild(timeDiv);
-      cal.appendChild(div);
-    });
-  }
-
-  // Update status při změně v selectu
-  function updateStatus(userId) {
-    const select = document.getElementById("select-" + userId);
-    const val = select.value;
-    calendarData[userId].status = val;
-    const statusSpan = document.getElementById("status-" + userId);
-    statusSpan.textContent = capitalize(val);
-    statusSpan.className = "status " + val;
-  }
-
-  // Pomocná funkce pro velké první písmeno
-  function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  // Otevře/zavře popup pro heslo
-  function togglePopup() {
-    const p = document.getElementById("popup");
-    p.style.display = p.style.display === "block" ? "none" : "block";
-  }
-
-  // Kontrola hesla, pokud OK, odemkne editaci
-  function checkPassword() {
-    const pwd = document.getElementById("password").value;
-    if (pwd === "frconzole24") {
-      canEdit = true;
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("save-btn").style.display = "block";
-      users.forEach(userId => {
-        renderCalendar(userId);
-      });
-    } else {
-      alert("Špatné heslo");
-    }
-    document.getElementById("password").value = "";
-  }
-
-  // Načtení dat z Firebase
-  async function loadAllUsersFromFirebase() {
-    for (const userId of users) {
-      const doc = await db.collection("workerStatus").doc(userId).get();
-      if (doc.exists) {
-        calendarData[userId] = doc.data();
-      } else {
-        calendarData[userId] = {
-          status: "active",
-          hours: {...defaultHours}
-        };
-      }
-    }
-  }
-
-  // Uložení dat do Firebase
-  async function saveAllUsersToFirebase() {
-    try {
-      for (const userId of users) {
-        await db.collection("workerStatus").doc(userId).set(calendarData[userId]);
-      }
-      alert("Data uložena.");
-    } catch(e) {
-      alert("Chyba při ukládání: " + e.message);
-    }
-  }
-
-  // Inicializace po načtení stránky
-  window.onload = async () => {
-    await loadAllUsersFromFirebase();
-    users.forEach(userId => renderCalendar(userId));
-  };
-</script>
-
-</body>
-</html>
+      // pokud není data, nastav defaultní časy
+      calendarData[userId] =
