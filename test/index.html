@@ -9,86 +9,30 @@
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #6e00ff, #000000);
+      background: #000;
       color: white;
     }
 
     .container {
       padding: 20px;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
 
     h1, h2 {
       text-align: center;
-      margin-bottom: 10px;
+      margin: 10px 0;
     }
 
-    .section-title {
-      margin-top: 30px;
-      font-size: 1.2rem;
-      border-bottom: 1px solid #555;
-      padding-bottom: 5px;
-    }
-
-    .user {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 30px;
-    }
-
-    .user-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .status {
-      font-weight: bold;
-    }
-
-    .status.active {
-      color: #00ff00;
-    }
-
-    .status.break {
-      color: orange;
-    }
-
-    .status.inactive {
-      color: red;
-    }
-
-    .calendar {
-      margin-top: 10px;
-      padding-left: 10px;
-    }
-
-    .day-row {
-      display: flex;
-      justify-content: space-between;
-      margin: 3px 0;
-    }
-
-    .editable {
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    /* Control button */
     .control {
-      position: absolute;
+      position: fixed;
       top: 10px;
-      right: 15px;
+      right: 20px;
       font-size: 14px;
       color: #bbb;
       cursor: pointer;
     }
 
-    /* Popup */
     .popup {
       position: fixed;
       top: 50%;
@@ -112,11 +56,91 @@
     .popup button {
       margin-top: 10px;
       width: 100%;
-      padding: 5px;
+      padding: 6px;
       background: #6e00ff;
       border: none;
       color: white;
       cursor: pointer;
+    }
+
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+    }
+
+    .users {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .user-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      flex: 1 1 45%;
+      min-width: 250px;
+    }
+
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .status {
+      font-weight: bold;
+    }
+
+    .status.active {
+      color: #00ff00;
+    }
+
+    .status.break {
+      color: orange;
+    }
+
+    .status.inactive {
+      color: red;
+    }
+
+    .calendar {
+      margin-top: 10px;
+    }
+
+    .day-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 3px 0;
+    }
+
+    .editable {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    select {
+      margin-top: 5px;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      padding: 4px;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .users {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -134,59 +158,61 @@
   <h2>Worker Activity</h2>
 
   <div class="section-title">Owners</div>
-  <div class="user" id="kotak">
-    <div class="user-header">
-      <span>Koťák</span>
-      <span class="status active" id="status-kotak">Active</span>
+  <div class="users">
+    <div class="user-card" id="kotak">
+      <div class="user-header">
+        <span>Koťák</span>
+        <span class="status active" id="status-kotak">Active</span>
+      </div>
+      <select class="hidden" id="select-kotak" onchange="updateStatus('kotak')">
+        <option value="active">Active</option>
+        <option value="break">Break</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="calendar" id="calendar-kotak"></div>
     </div>
-    <select class="hidden" onchange="updateStatus('kotak')" id="select-kotak">
-      <option value="active">Active</option>
-      <option value="break">Break</option>
-      <option value="inactive">Inactive</option>
-    </select>
-    <div class="calendar" id="calendar-kotak">
-      <!-- Days will be rendered by JS -->
-    </div>
-  </div>
 
-  <div class="user" id="mrtomicz">
-    <div class="user-header">
-      <span>MrTomiCZ</span>
-      <span class="status inactive" id="status-mrtomicz">Inactive</span>
+    <div class="user-card" id="mrtomicz">
+      <div class="user-header">
+        <span>MrTomiCZ</span>
+        <span class="status inactive" id="status-mrtomicz">Inactive</span>
+      </div>
+      <select class="hidden" id="select-mrtomicz" onchange="updateStatus('mrtomicz')">
+        <option value="active">Active</option>
+        <option value="break">Break</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="calendar" id="calendar-mrtomicz"></div>
     </div>
-    <select class="hidden" onchange="updateStatus('mrtomicz')" id="select-mrtomicz">
-      <option value="active">Active</option>
-      <option value="break">Break</option>
-      <option value="inactive">Inactive</option>
-    </select>
-    <div class="calendar" id="calendar-mrtomicz"></div>
   </div>
 
   <div class="section-title">Main workers</div>
-  <div class="user" id="jpmanof">
-    <div class="user-header">
-      <span>JPmanOF</span>
-      <span class="status break" id="status-jpmanof">Break</span>
+  <div class="users">
+    <div class="user-card" id="jpmanof">
+      <div class="user-header">
+        <span>JPmanOF</span>
+        <span class="status break" id="status-jpmanof">Break</span>
+      </div>
+      <select class="hidden" id="select-jpmanof" onchange="updateStatus('jpmanof')">
+        <option value="active">Active</option>
+        <option value="break">Break</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="calendar" id="calendar-jpmanof"></div>
     </div>
-    <select class="hidden" onchange="updateStatus('jpmanof')" id="select-jpmanof">
-      <option value="active">Active</option>
-      <option value="break">Break</option>
-      <option value="inactive">Inactive</option>
-    </select>
-    <div class="calendar" id="calendar-jpmanof"></div>
-  </div>
 
-  <div class="user" id="kubali">
-    <div class="user-header">
-      <span>kubali</span>
-      <span class="status active" id="status-kubali">Active</span>
+    <div class="user-card" id="kubali">
+      <div class="user-header">
+        <span>kubali</span>
+        <span class="status active" id="status-kubali">Active</span>
+      </div>
+      <select class="hidden" id="select-kubali" onchange="updateStatus('kubali')">
+        <option value="active">Active</option>
+        <option value="break">Break</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="calendar" id="calendar-kubali"></div>
     </div>
-    <select class="hidden" onchange="updateStatus('kubali')" id="select-kubali">
-      <option value="active">Active</option>
-      <option value="break">Break</option>
-      <option value="inactive">Inactive</option>
-    </select>
-    <div class="calendar" id="calendar-kubali"></div>
   </div>
 </div>
 
@@ -204,6 +230,7 @@
   };
 
   const calendarData = {};
+  let canEdit = false;
 
   function renderCalendar(userId) {
     const cal = document.getElementById("calendar-" + userId);
@@ -222,7 +249,7 @@
       hourSpan.className = "editable";
       hourSpan.onclick = () => {
         if (!canEdit) return;
-        const input = prompt("Enter new time for " + day, calendarData[userId][day]);
+        const input = prompt(`Zadej nový čas pro ${day}`, calendarData[userId][day]);
         if (input !== null) {
           calendarData[userId][day] = input;
           renderCalendar(userId);
@@ -233,8 +260,6 @@
       cal.appendChild(row);
     });
   }
-
-  let canEdit = false;
 
   function togglePopup() {
     document.getElementById("popup").style.display = "block";
@@ -249,19 +274,19 @@
         document.getElementById("select-" + user).classList.remove("hidden");
       });
     } else {
-      alert("Wrong password!");
+      alert("Špatné heslo!");
     }
   }
 
   function updateStatus(userId) {
-    const value = document.getElementById("select-" + userId).value;
-    const statusSpan = document.getElementById("status-" + userId);
-    statusSpan.textContent = value.charAt(0).toUpperCase() + value.slice(1);
-    statusSpan.className = "status " + value;
+    const val = document.getElementById("select-" + userId).value;
+    const status = document.getElementById("status-" + userId);
+    status.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+    status.className = "status " + val;
   }
 
-  // Initialize calendars
   users.forEach(user => renderCalendar(user));
 </script>
+
 </body>
 </html>
