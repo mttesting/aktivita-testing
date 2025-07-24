@@ -7,291 +7,246 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
-      background: linear-gradient(120deg, #6a0dad, #000000);
+      font-family: sans-serif;
+      background: linear-gradient(120deg, #6a00ff, #000000);
       color: white;
-      font-family: Arial, sans-serif;
-    }
-
-    .header {
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    .control-button {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      cursor: pointer;
-      font-size: 16px;
-      color: white;
-      opacity: 0.5;
-    }
-
-    .section {
-      max-width: 900px;
-      margin: auto;
       padding: 20px;
     }
 
-    .section-title {
-      font-size: 24px;
-      margin-bottom: 10px;
-      text-decoration: underline;
+    .control-btn {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: #ccc;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 1000;
     }
 
-    .worker-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1001;
     }
 
-    .worker {
-      background: rgba(255, 255, 255, 0.05);
+    .popup input {
+      padding: 5px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .section {
+      margin-top: 40px;
+    }
+
+    .people {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+    }
+
+    .person {
+      background: rgba(255,255,255,0.05);
       padding: 15px;
       border-radius: 10px;
-    }
-
-    .worker h3 {
-      margin: 0 0 10px;
+      min-width: 250px;
     }
 
     .status {
-      padding: 5px 10px;
+      margin: 10px 0;
+    }
+
+    .status select {
+      padding: 5px;
+      border: none;
       border-radius: 5px;
-      display: inline-block;
       font-weight: bold;
     }
 
-    .Active {
-      background-color: green;
-    }
-
-    .Break {
-      background-color: orange;
-    }
-
-    .Inactive {
-      background-color: red;
-    }
-
     .calendar {
-      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
     .calendar-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 5px;
     }
 
-    .calendar-day {
-      flex: 1;
-    }
-
-    .calendar-time {
-      flex: 1;
-      text-align: right;
-    }
-
-    input.time-input, select.status-select {
-      width: 100%;
-      background: black;
-      color: white;
-      border: 1px solid #555;
-      border-radius: 5px;
+    .calendar-row input {
+      border: none;
       padding: 5px;
-      margin-top: 5px;
-    }
-
-    /* Popup */
-    .popup {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .popup-content {
-      background: #111;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .popup-content input {
-      padding: 10px;
-      width: 100%;
-      margin-top: 10px;
       border-radius: 5px;
-      border: none;
+      width: 100px;
     }
 
-    .popup-content button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      border: none;
-      background: #6a0dad;
+    .status select[data-value="Active"] {
+      background-color: #00c853;
       color: white;
-      border-radius: 5px;
-      cursor: pointer;
+    }
+
+    .status select[data-value="Break"] {
+      background-color: #ffab00;
+      color: black;
+    }
+
+    .status select[data-value="Inactive"] {
+      background-color: #d50000;
+      color: white;
     }
 
     @media (max-width: 600px) {
-      .calendar-row {
+      .people {
         flex-direction: column;
-        text-align: left;
-      }
-
-      .calendar-time {
-        text-align: left;
-        margin-top: 3px;
+        align-items: center;
       }
     }
   </style>
 </head>
 <body>
+  <button class="control-btn" onclick="document.querySelector('.popup').style.display = 'flex'">control</button>
 
-  <div class="control-button" onclick="showPopup()">control</div>
+  <div class="popup">
+    <label for="password">Enter password:</label>
+    <input type="password" id="password" />
+    <button onclick="checkPassword()">Submit</button>
+  </div>
 
-  <div class="header">
+  <div class="container">
     <h1>FrCreator</h1>
     <h2>Worker Activity</h2>
-  </div>
 
-  <div class="section">
-    <div class="section-title">Owners</div>
-    <div class="worker-grid">
-      <div class="worker" data-id="kotak">
-        <h3>Koťák</h3>
-        <div class="status Active" data-status>Active</div>
-        <select class="status-select" disabled onchange="changeStatus(this)">
-          <option>Active</option>
-          <option>Break</option>
-          <option>Inactive</option>
-        </select>
-        <div class="calendar" data-calendar>
-          <!-- Calendar rows -->
+    <div class="section">
+      <h3>Owners</h3>
+      <div class="people">
+        <div class="person">
+          <strong>Koťák</strong>
+          <div class="status">
+            <select class="status-select" disabled onchange="setColor(this)">
+              <option value="Active">Active</option>
+              <option value="Break">Break</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="calendar">
+            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+          </div>
         </div>
-      </div>
-
-      <div class="worker" data-id="mrtomicz">
-        <h3>MrTomiCZ</h3>
-        <div class="status Break" data-status>Break</div>
-        <select class="status-select" disabled onchange="changeStatus(this)">
-          <option>Active</option>
-          <option selected>Break</option>
-          <option>Inactive</option>
-        </select>
-        <div class="calendar" data-calendar>
-          <!-- Calendar rows -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Main Workers</div>
-    <div class="worker-grid">
-      <div class="worker" data-id="jpmanof">
-        <h3>JPmanOF</h3>
-        <div class="status Inactive" data-status>Inactive</div>
-        <select class="status-select" disabled onchange="changeStatus(this)">
-          <option>Active</option>
-          <option>Break</option>
-          <option selected>Inactive</option>
-        </select>
-        <div class="calendar" data-calendar>
-          <!-- Calendar rows -->
-        </div>
-      </div>
-
-      <div class="worker" data-id="kubali">
-        <h3>kubali</h3>
-        <div class="status Active" data-status>Active</div>
-        <select class="status-select" disabled onchange="changeStatus(this)">
-          <option selected>Active</option>
-          <option>Break</option>
-          <option>Inactive</option>
-        </select>
-        <div class="calendar" data-calendar>
-          <!-- Calendar rows -->
+        <div class="person">
+          <strong>MrTomiCZ</strong>
+          <div class="status">
+            <select class="status-select" disabled onchange="setColor(this)">
+              <option value="Active">Active</option>
+              <option value="Break">Break</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="calendar">
+            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- POPUP -->
-  <div class="popup" id="popup">
-    <div class="popup-content">
-      <h3>Enter Password</h3>
-      <input type="password" id="passwordInput" placeholder="Password" />
-      <button onclick="verifyPassword()">Submit</button>
+    <div class="section">
+      <h3>Main Workers</h3>
+      <div class="people">
+        <div class="person">
+          <strong>JPmanOF</strong>
+          <div class="status">
+            <select class="status-select" disabled onchange="setColor(this)">
+              <option value="Active">Active</option>
+              <option value="Break">Break</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="calendar">
+            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+          </div>
+        </div>
+        <div class="person">
+          <strong>kubali</strong>
+          <div class="status">
+            <select class="status-select" disabled onchange="setColor(this)">
+              <option value="Active">Active</option>
+              <option value="Break">Break</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div class="calendar">
+            <div class="calendar-row"><span>Monday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Tuesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Wednesday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Thursday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Friday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Saturday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+            <div class="calendar-row"><span>Sunday</span><input type="text" disabled value="9:00 - 16:00" /></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-    function createCalendar(container) {
-      DAYS.forEach(day => {
-        const row = document.createElement("div");
-        row.className = "calendar-row";
-
-        const dayEl = document.createElement("div");
-        dayEl.className = "calendar-day";
-        dayEl.innerText = day;
-
-        const timeEl = document.createElement("div");
-        timeEl.className = "calendar-time";
-        const input = document.createElement("input");
-        input.className = "time-input";
-        input.type = "text";
-        input.value = "9:00 - 16:00";
-        input.disabled = true;
-
-        timeEl.appendChild(input);
-        row.appendChild(dayEl);
-        row.appendChild(timeEl);
-
-        container.appendChild(row);
-      });
-    }
-
-    // Apply calendar to all workers
-    document.querySelectorAll("[data-calendar]").forEach(calendar => {
-      createCalendar(calendar);
-    });
-
-    function showPopup() {
-      document.getElementById("popup").style.display = "flex";
-    }
-
-    function verifyPassword() {
-      const input = document.getElementById("passwordInput").value;
+    function checkPassword() {
+      const input = document.getElementById("password").value;
       if (input === "frconzole24") {
-        document.getElementById("popup").style.display = "none";
-        enableEditing();
+        document.querySelector('.popup').style.display = 'none';
+
+        // Enable all editable fields
+        document.querySelectorAll('select').forEach(s => {
+          s.disabled = false;
+          setColor(s);
+        });
+        document.querySelectorAll('input[type="text"]').forEach(i => i.disabled = false);
       } else {
-        alert("Incorrect password");
+        alert("Wrong password.");
       }
     }
 
-    function enableEditing() {
-      document.querySelectorAll(".time-input").forEach(input => input.disabled = false);
-      document.querySelectorAll(".status-select").forEach(select => select.disabled = false);
+    function setColor(select) {
+      select.setAttribute('data-value', select.value);
     }
 
-    function changeStatus(select) {
-      const newStatus = select.value;
-      const worker = select.closest(".worker");
-      const statusDiv = worker.querySelector("[data-status]");
-      statusDiv.className = `status ${newStatus}`;
-      statusDiv.innerText = newStatus;
-    }
+    // Initialize select styles
+    document.querySelectorAll('select').forEach(setColor);
   </script>
 </body>
 </html>
