@@ -122,7 +122,7 @@
 
 <div class="control" onclick="togglePopup()">control</div>
 
-<div id="popup">
+<div id="popup" onclick="if(event.target===this) togglePopup()">
   <input type="password" id="passwordInput" placeholder="Zadej heslo" autocomplete="off" />
   <button onclick="checkPassword()">Potvrdit</button>
 </div>
@@ -138,18 +138,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-  // --- TVŮJ FIREBASE CONFIG ZDE ---
   const firebaseConfig = {
-  apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
-  authDomain: "status2-ccf4d.firebaseapp.com",
-  databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "status2-ccf4d",
-  storageBucket: "status2-ccf4d.firebasestorage.app",
-  messagingSenderId: "170845328997",
-  appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
-  measurementId: "G-E9TSV3D5K9"
-};
-
+    apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
+    authDomain: "status2-ccf4d.firebaseapp.com",
+    databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "status2-ccf4d",
+    storageBucket: "status2-ccf4d.appspot.com",  // Opraveno na appspot.com
+    messagingSenderId: "170845328997",
+    appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
+    measurementId: "G-E9TSV3D5K9"
+  };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -165,7 +163,12 @@
 
   function togglePopup() {
     const pop = document.getElementById("popup");
-    pop.style.display = pop.style.display === "block" ? "none" : "block";
+    if(pop.style.display === "block"){
+      pop.style.display = "none";
+    } else {
+      pop.style.display = "block";
+      document.getElementById("passwordInput").focus();
+    }
   }
 
   function checkPassword() {
@@ -175,6 +178,7 @@
       togglePopup();
       renderAllUsers();
       document.getElementById("saveBtn").classList.add("visible");
+      alert("Přihlášení úspěšné!");
     } else {
       alert("Špatné heslo!");
     }
@@ -272,7 +276,6 @@
       const data = snapshot.val();
       if(!data){
         alert("Žádná data v Firebase");
-        // inicializace prázdných dat
         users.forEach(u => {
           statusData[u] = "inactive";
           calendarData[u] = {};
