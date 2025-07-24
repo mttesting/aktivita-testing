@@ -1,362 +1,379 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pracovní status a kalendář</title>
+  <title>Worker Activity</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
       margin: 0;
-      padding: 0 10px 40px;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: white;
     }
-    header {
-      display: flex;
-      justify-content: flex-end;
-      padding: 10px 0;
-    }
-    button#controlBtn {
-      background: none;
-      border: none;
-      font-size: 14px;
-      color: #888;
-      cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-    }
-    button#controlBtn:hover {
-      background-color: #ddd;
-      color: #333;
-    }
-    #popup {
-      display: none;
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
+    .container {
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      z-index: 1000;
-      width: 300px;
+      max-width: 1000px;
+      margin: auto;
     }
-    #popup.show {
-      display: block;
+    h1, h2 {
+      text-align: center;
+      margin: 10px 0;
     }
-    #popup input[type="password"] {
+    .control {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 14px;
+      color: #bbb;
+      cursor: pointer;
+      user-select: none;
+      z-index: 20;
+    }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+      z-index: 30;
+      width: 280px;
+      box-sizing: border-box;
+    }
+    .popup input {
+      background: #222;
+      border: 1px solid #444;
+      color: white;
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+    .popup button {
+      margin-top: 12px;
       width: 100%;
       padding: 8px;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-    #popup button {
-      padding: 8px 16px;
-      cursor: pointer;
+      background: #6e00ff;
       border: none;
-      background-color: #1976d2;
       color: white;
-      border-radius: 5px;
       font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
     }
-    #overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 900;
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
     }
-    #overlay.show {
-      display: block;
+    .users {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: normal;
-    }
-    .user-section {
-      background: white;
-      margin-bottom: 15px;
-      padding: 12px 15px;
+    .user-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      flex: 1 1 45%;
+      min-width: 250px;
+      box-sizing: border-box;
     }
-    .user-name {
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
     .status {
-      display: inline-block;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-weight: 600;
-      color: white;
+      font-weight: bold;
       user-select: none;
-      cursor: default;
     }
     .status.active {
-      background-color: #4caf50;
+      color: #00ff00;
     }
     .status.break {
-      background-color: #ff9800;
+      color: orange;
     }
     .status.inactive {
-      background-color: #f44336;
+      color: red;
     }
-    .status.editable {
-      cursor: pointer;
-      opacity: 0.85;
-      transition: opacity 0.2s;
-    }
-    .status.editable:hover {
-      opacity: 1;
-    }
-    table.calendar {
-      width: 100%;
-      border-collapse: collapse;
+    .calendar {
       margin-top: 10px;
-      user-select: none;
     }
-    table.calendar th,
-    table.calendar td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-      font-size: 14px;
-      background: #fafafa;
+    .day-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 3px 0;
     }
-    table.calendar th {
-      background: #e0e0e0;
-    }
-    td.time-cell {
-      cursor: default;
-      background: transparent;
-      color: #333;
-    }
-    td.time-cell.editable {
+    .editable {
       cursor: pointer;
-      border-bottom: 1px dashed #666;
+      user-select: none;
+      background: transparent;
+      border: none;
+      color: white;
+      min-width: 100px;
+      text-align: right;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    select {
+      margin-top: 5px;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      padding: 4px;
+      border-radius: 5px;
+      font-size: 14px;
+      display: none;
+      width: 100px;
+    }
+    select.visible {
+      display: inline-block;
+    }
+    @media (max-width: 600px) {
+      .users {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <button id="controlBtn">control</button>
-</header>
+<div class="control" onclick="togglePopup()">control</div>
 
-<h1>Pracovní status a kalendář</h1>
-
-<div id="usersContainer">
-  <!-- Sem se vykreslí uživatelé -->
+<div class="popup" id="popup">
+  <input type="password" id="password" placeholder="Enter password" autocomplete="off" />
+  <button onclick="checkPassword()">Submit</button>
 </div>
 
-<!-- Popup pro heslo -->
-<div id="overlay"></div>
-<div id="popup">
-  <form id="passwordForm">
-    <input type="password" id="passwordInput" placeholder="Zadej heslo" autocomplete="off" />
-    <button type="submit">Ověřit</button>
-  </form>
+<div class="container">
+  <h1>FrCreator</h1>
+  <h2>Worker Activity</h2>
+
+  <div class="section-title">Owners</div>
+  <div class="users">
+    <div class="user-card" id="kotak">
+      <div class="user-header">
+        <span>Koťák</span>
+        <span class="status active" id="status-kotak">Active</span>
+      </div>
+      <select id="select-kotak" onchange="updateStatus('kotak')"></select>
+      <div class="calendar" id="calendar-kotak"></div>
+    </div>
+
+    <div class="user-card" id="mrtomicz">
+      <div class="user-header">
+        <span>MrTomiCZ</span>
+        <span class="status inactive" id="status-mrtomicz">Inactive</span>
+      </div>
+      <select id="select-mrtomicz" onchange="updateStatus('mrtomicz')"></select>
+      <div class="calendar" id="calendar-mrtomicz"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Main workers</div>
+  <div class="users">
+    <div class="user-card" id="jpmanof">
+      <div class="user-header">
+        <span>JPmanOF</span>
+        <span class="status break" id="status-jpmanof">Break</span>
+      </div>
+      <select id="select-jpmanof" onchange="updateStatus('jpmanof')"></select>
+      <div class="calendar" id="calendar-jpmanof"></div>
+    </div>
+
+    <div class="user-card" id="kubali">
+      <div class="user-header">
+        <span>kubali</span>
+        <span class="status active" id="status-kubali">Active</span>
+      </div>
+      <select id="select-kubali" onchange="updateStatus('kubali')"></select>
+      <div class="calendar" id="calendar-kubali"></div>
+    </div>
+  </div>
 </div>
 
-<!-- Firebase SDK -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-  // Firebase konfigurace (tvůj config)
+  // --- TVŮJ FIREBASE CONFIG sem zkopíruj ---
   const firebaseConfig = {
-    apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
-    authDomain: "status2-ccf4d.firebaseapp.com",
-    projectId: "status2-ccf4d",
-    storageBucket: "status2-ccf4d.firebasestorage.app",
-    messagingSenderId: "170845328997",
-    appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
-    measurementId: "G-E9TSV3D5K9"
+    apiKey: "TVŮJ_API_KEY",
+    authDomain: "TVŮJ_AUTH_DOMAIN",
+    databaseURL: "TVŮJ_DATABASE_URL",
+    projectId: "TVŮJ_PROJECT_ID",
+    storageBucket: "TVŮJ_STORAGE_BUCKET",
+    messagingSenderId: "TVŮJ_MESSAGING_SENDER_ID",
+    appId: "TVŮJ_APP_ID"
   };
 
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  const db = firebase.database();
 
-  const users = ["Koťák", "MrTomiCZ", "JPmanOF", "kubali"];
-  const defaultTimes = {
-    "Po": "9:00 - 16:00",
-    "Út": "9:00 - 16:00",
-    "St": "9:00 - 16:00",
-    "Čt": "9:00 - 16:00",
-    "Pá": "9:00 - 16:00",
-    "So": "9:00 - 16:00",
-    "Ne": "9:00 - 16:00",
-  };
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const users = ["kotak", "mrtomicz", "jpmanof", "kubali"];
 
-  const statuses = ["active", "break", "inactive"];
-  const statusLabels = {
-    active: "Pracuje",
-    break: "Pauza",
-    inactive: "Nepracuje"
-  };
+  let canEdit = false;
 
-  let editMode = false;
+  // Funkce pro vytvoření dropdownu statusu
+  function createStatusOptions(selected) {
+    const options = [
+      { val: "active", label: "Active" },
+      { val: "break", label: "Break" },
+      { val: "inactive", label: "Inactive" },
+    ];
+    return options.map(o => 
+      `<option value="${o.val}"${o.val === selected ? " selected" : ""}>${o.label}</option>`
+    ).join("");
+  }
 
-  const usersContainer = document.getElementById("usersContainer");
-  const controlBtn = document.getElementById("controlBtn");
-  const popup = document.getElementById("popup");
-  const overlay = document.getElementById("overlay");
-  const passwordForm = document.getElementById("passwordForm");
-  const passwordInput = document.getElementById("passwordInput");
+  // Proměnná pro data načtená z Firebase
+  const calendarData = {};
+  const statuses = {};
 
-  // Funkce pro vykreslení jednoho uživatele
-  async function renderUser(userId) {
-    // Získat data z Firestore
-    const docRef = db.collection("users").doc(userId);
-    let doc = await docRef.get();
+  // Render kalendáře pro uživatele z dat v calendarData
+  function renderCalendar(userId) {
+    const cal = document.getElementById("calendar-" + userId);
+    cal.innerHTML = "";
 
-    let data = doc.exists ? doc.data() : null;
+    if (!calendarData[userId]) {
+      // pokud nejsou data, nastavíme defaultní
+      calendarData[userId] = {};
+      days.forEach(day => calendarData[userId][day] = "9:00 - 16:00");
+    }
 
-    if (!data) {
-      data = {
-        status: "active",
-        times: {...defaultTimes}
+    days.forEach(day => {
+      const row = document.createElement("div");
+      row.className = "day-row";
+
+      const dayName = document.createElement("span");
+      dayName.textContent = day;
+
+      const hoursSpan = document.createElement("span");
+      hoursSpan.textContent = calendarData[userId][day];
+      hoursSpan.className = "editable";
+      hoursSpan.onclick = () => {
+        if (!canEdit) return;
+        const input = prompt(`Zadej nový čas pro ${day}`, calendarData[userId][day]);
+        if (input !== null && input.trim() !== "") {
+          calendarData[userId][day] = input.trim();
+          saveUserData(userId);
+          renderCalendar(userId);
+        }
       };
-      await docRef.set(data);
-    }
 
-    // Vytvořit sekci uživatele
-    let section = document.createElement("div");
-    section.className = "user-section";
-    section.id = "user-" + userId;
-
-    // Nadpis s jménem
-    let nameEl = document.createElement("div");
-    nameEl.className = "user-name";
-    nameEl.textContent = userId;
-    section.appendChild(nameEl);
-
-    // Status (barevný štítek)
-    let statusEl = document.createElement("div");
-    statusEl.className = "status " + data.status + (editMode ? " editable" : "");
-    statusEl.textContent = statusLabels[data.status] || data.status;
-    statusEl.title = editMode ? "Klikni pro změnu statusu" : "";
-    if (editMode) {
-      statusEl.addEventListener("click", () => {
-        let currentIndex = statuses.indexOf(data.status);
-        let nextIndex = (currentIndex + 1) % statuses.length;
-        data.status = statuses[nextIndex];
-        statusEl.textContent = statusLabels[data.status];
-        statusEl.className = "status " + data.status + " editable";
-        saveUserData(userId, data);
-      });
-    }
-    section.appendChild(statusEl);
-
-    // Tabulka kalendáře (dny v týdnu a časy)
-    let table = document.createElement("table");
-    table.className = "calendar";
-
-    // Hlavička tabulky - dny
-    let thead = document.createElement("thead");
-    let headerRow = document.createElement("tr");
-    ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"].forEach(day => {
-      let th = document.createElement("th");
-      th.textContent = day;
-      headerRow.appendChild(th);
+      row.appendChild(dayName);
+      row.appendChild(hoursSpan);
+      cal.appendChild(row);
     });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+  }
 
-    // Jeden řádek s časovými intervaly
-    let tbody = document.createElement("tbody");
-    let row = document.createElement("tr");
-    ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"].forEach(day => {
-      let td = document.createElement("td");
-      td.className = "time-cell" + (editMode ? " editable" : "");
-      td.textContent = data.times[day] || "";
-      if (editMode) {
-        td.title = "Klikni pro úpravu času";
-        td.addEventListener("click", () => {
-          let newTime = prompt(`Zadej nový čas pro ${day}`, td.textContent);
-          if (newTime !== null) {
-            td.textContent = newTime.trim();
-            data.times[day] = newTime.trim();
-            saveUserData(userId, data);
-          }
-        });
-      }
-      row.appendChild(td);
-    });
-    tbody.appendChild(row);
-    table.appendChild(tbody);
+  // Render statusu uživatele
+  function renderStatus(userId) {
+    const statusEl = document.getElementById("status-" + userId);
+    const select = document.getElementById("select-" + userId);
 
-    section.appendChild(table);
+    let status = statuses[userId] || "active";
 
-    // Pokud uživatel už existuje v DOM, nahradíme, jinak přidáme
-    let existing = document.getElementById("user-" + userId);
-    if (existing) {
-      usersContainer.replaceChild(section, existing);
+    statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    statusEl.className = "status " + status;
+
+    if (canEdit) {
+      select.classList.add("visible");
+      select.innerHTML = createStatusOptions(status);
+      select.value = status;
     } else {
-      usersContainer.appendChild(section);
+      select.classList.remove("visible");
     }
   }
 
-  // Uložit data uživatele do Firestore
-  async function saveUserData(userId, data) {
-    try {
-      await db.collection("users").doc(userId).set(data);
-    } catch (err) {
-      alert("Chyba při ukládání dat: " + err.message);
+  // Uloží data uživatele do Firebase
+  function saveUserData(userId) {
+    db.ref("users/" + userId).set({
+      status: statuses[userId] || "active",
+      calendar: calendarData[userId]
+    });
+  }
+
+  // Aktualizace statusu při změně selectu
+  function updateStatus(userId) {
+    const select = document.getElementById("select-" + userId);
+    const val = select.value;
+    statuses[userId] = val;
+
+    const statusEl = document.getElementById("status-" + userId);
+    statusEl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+    statusEl.className = "status " + val;
+
+    saveUserData(userId);
+  }
+
+  // Načte data z Firebase pro všechny uživatele
+  function loadData() {
+    users.forEach(userId => {
+      db.ref("users/" + userId).on("value", snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          statuses[userId] = data.status || "active";
+          calendarData[userId] = data.calendar || {};
+        } else {
+          // defaultní nastavení pokud není nic v DB
+          statuses[userId] = "active";
+          calendarData[userId] = {};
+          days.forEach(day => calendarData[userId][day] = "9:00 - 16:00");
+        }
+        renderStatus(userId);
+        renderCalendar(userId);
+      });
+    });
+  }
+
+  // Ovládání popupu
+  function togglePopup() {
+    const popup = document.getElementById("popup");
+    if (popup.style.display === "block") {
+      popup.style.display = "none";
+    } else {
+      popup.style.display = "block";
+      document.getElementById("password").value = "";
+      document.getElementById("password").focus();
     }
   }
 
-  // Načíst a vykreslit všechny uživatele
-  async function loadAllUsers() {
-    for (let userId of users) {
-      await renderUser(userId);
-    }
-  }
+  // Kontrola hesla, povolení editace a zobrazení selectů
+  function checkPassword() {
+    const pw = document.getElementById("password").value;
+    if (pw === "frconzole24") {
+      canEdit = true;
+      document.getElementById("popup").style.display = "none";
 
-  // Otevřít popup pro zadání hesla
-  function openPasswordPopup() {
-    passwordInput.value = "";
-    popup.classList.add("show");
-    overlay.classList.add("show");
-    passwordInput.focus();
-  }
+      // Zobrazit selecty a nastavit je podle aktuálních statusů
+      users.forEach(userId => {
+        renderStatus(userId);
+        renderCalendar(userId);
+      });
 
-  // Zavřít popup
-  function closePasswordPopup() {
-    popup.classList.remove("show");
-    overlay.classList.remove("show");
-  }
-
-  // Zpracování formuláře hesla
-  passwordForm.addEventListener("submit", e => {
-    e.preventDefault();
-    const pass = passwordInput.value.trim();
-    if (pass === "frconzole24") {
-      editMode = true;
-      closePasswordPopup();
-      loadAllUsers();
       alert("Editace povolena.");
     } else {
       alert("Špatné heslo.");
     }
-  });
+  }
 
-  // Klik na tlačítko control
-  controlBtn.addEventListener("click", () => {
-    openPasswordPopup();
-  });
-
-  // Klik mimo popup zavře popup
-  overlay.addEventListener("click", () => {
-    closePasswordPopup();
-  });
-
-  // Inicializace
-  loadAllUsers();
+  // Inicializace stránky
+  loadData();
 
 </script>
 
