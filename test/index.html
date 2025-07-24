@@ -140,6 +140,17 @@
     select.visible {
       display: inline-block;
     }
+    button.save-btn {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: #4caf50;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
     @media (max-width: 600px) {
       .users {
         flex-direction: column;
@@ -201,9 +212,30 @@
       <div class="calendar" id="calendar-kubali"></div>
     </div>
   </div>
+
+  <!-- Ulozit tlacitko, zobrazi se po odemceni -->
+  <button class="save-btn" id="save-btn" style="display:none;" onclick="saveAllUsersToFirebase()">Uložit změny</button>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
 <script>
+  // Firebase config - nahraď svým vlastním configem
+  const firebaseConfig = {
+    apiKey: "TVŮJ_API_KEY",
+    authDomain: "TVŮJ_AUTH_DOMAIN",
+    projectId: "TVŮJ_PROJECT_ID",
+    storageBucket: "TVŮJ_STORAGE_BUCKET",
+    messagingSenderId: "TVŮJ_MESSAGING_SENDER_ID",
+    appId: "TVŮJ_APP_ID"
+  };
+
+  // Inicializace Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const users = ["kotak", "mrtomicz", "jpmanof", "kubali"];
   const defaultHours = {
@@ -216,15 +248,7 @@
     "Sunday": "9:00 - 16:00"
   };
 
-  // Výchozí statusy, aby se dropdowny nastavil správně
-  const defaultStatuses = {
-    "kotak": "active",
-    "mrtomicz": "inactive",
-    "jpmanof": "break",
-    "kubali": "active"
-  };
-
-  const calendarData = {};
+  let calendarData = {};
   let canEdit = false;
 
   function createStatusOptions(selected) {
@@ -243,79 +267,3 @@
     cal.innerHTML = "";
     if (!calendarData[userId]) {
       calendarData[userId] = { ...defaultHours };
-    }
-
-    days.forEach(day => {
-      const row = document.createElement("div");
-      row.className = "day-row";
-
-      const dayName = document.createElement("span");
-      dayName.textContent = day;
-
-      const hoursSpan = document.createElement("span");
-      hoursSpan.textContent = calendarData[userId][day];
-      hoursSpan.className = "editable";
-      hoursSpan.onclick = () => {
-        if (!canEdit) return;
-        const input = prompt(`Zadej nový čas pro ${day}`, calendarData[userId][day]);
-        if (input !== null && input.trim() !== "") {
-          calendarData[userId][day] = input.trim();
-          renderCalendar(userId);
-        }
-      };
-
-      row.appendChild(dayName);
-      row.appendChild(hoursSpan);
-      cal.appendChild(row);
-    });
-  }
-
-  function togglePopup() {
-    const popup = document.getElementById("popup");
-    if (popup.style.display === "block") {
-      popup.style.display = "none";
-    } else {
-      popup.style.display = "block";
-      document.getElementById("password").value = "";
-      document.getElementById("password").focus();
-    }
-  }
-
-  function checkPassword() {
-    const pw = document.getElementById("password").value;
-    if (pw === "frconzole24") {
-      canEdit = true;
-      document.getElementById("popup").style.display = "none";
-
-      // zobrazit dropdowny a nastavit je podle aktuálního stavu
-      users.forEach(user => {
-        const select = document.getElementById("select-" + user);
-        select.classList.add("visible");
-        // pokud není nastaven, použij defaultní
-        const statusEl = document.getElementById("status-" + user);
-        const currentStatus = statusEl.classList.contains("active") ? "active" :
-                              statusEl.classList.contains("break") ? "break" :
-                              statusEl.classList.contains("inactive") ? "inactive" : "active";
-        select.innerHTML = createStatusOptions(currentStatus);
-        select.value = currentStatus;
-      });
-    } else {
-      alert("Špatné heslo!");
-      canEdit = false;
-    }
-  }
-
-  function updateStatus(userId) {
-    const select = document.getElementById("select-" + userId);
-    const val = select.value;
-    const statusEl = document.getElementById("status-" + userId);
-    statusEl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
-    statusEl.className = "status " + val;
-  }
-
-  // inicializace kalendářů
-  users.forEach(user => renderCalendar(user));
-</script>
-
-</body>
-</html>
