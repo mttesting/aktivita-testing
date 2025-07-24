@@ -10,21 +10,11 @@
     color: #fff;
     font-family: Arial, sans-serif;
     margin: 0; padding: 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  header {
-    position: relative;
-    text-align: center;
-    margin-bottom: 20px;
   }
 
   h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
   }
 
   .control {
@@ -48,6 +38,7 @@
     z-index: 1100;
     width: 280px;
   }
+
   #popup input {
     width: 100%;
     padding: 8px;
@@ -57,6 +48,7 @@
     background: #444;
     color: white;
   }
+
   #popup button {
     margin-top: 10px;
     width: 100%;
@@ -73,26 +65,32 @@
   #usersContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 20px;
+    justify-content: center;
   }
 
   .user {
     background: #111;
     padding: 15px;
     border-radius: 8px;
-    width: 45%; /* cca polovina šířky, s mezerou */
+    width: 45%;
+    min-width: 280px;
     box-sizing: border-box;
-    min-width: 280px; /* aby to nebylo moc malé */
+
+    display: flex;
+    flex-direction: column;
+    height: 400px; /* pevná výška */
   }
 
   .user h3 {
     margin: 0 0 5px 0;
   }
+
   .status {
     font-weight: bold;
     margin-bottom: 10px;
   }
+
   .status.active { color: #0f0; }
   .status.break { color: orange; }
   .status.inactive { color: red; }
@@ -106,18 +104,25 @@
   }
 
   .calendar {
-    max-height: 320px;
+    flex-grow: 1;
     overflow-y: auto;
+    margin-top: 10px;
   }
 
   .day {
     display: flex;
     justify-content: space-between;
     padding: 3px 0;
+    border-bottom: 1px solid #222;
   }
-  .day div {
+  .day div:first-child {
     flex: 1;
   }
+  .day div:last-child {
+    flex: 1;
+    text-align: right;
+  }
+
   .time-text {
     cursor: default;
   }
@@ -130,6 +135,7 @@
     font-size: 14px;
     border-radius: 3px;
     padding: 3px 5px;
+    box-sizing: border-box;
   }
   .time-edit.visible {
     display: inline-block;
@@ -144,27 +150,27 @@
     border-radius: 5px;
     cursor: pointer;
     display: none;
-    margin: 20px auto 0;
-    width: 200px;
+    margin-top: 20px;
+    align-self: center;
   }
   #saveBtn.visible {
     display: block;
   }
 
-  /* Responsive pro mobil */
-  @media (max-width: 650px) {
+  /* Responzivní pro menší obrazovky */
+  @media (max-width: 700px) {
     .user {
       width: 100%;
-      min-width: auto;
+      height: auto;
+    }
+    .calendar {
+      max-height: 300px;
+      overflow-y: auto;
     }
   }
 </style>
 </head>
 <body>
-
-<header>
-  <h1>Pracovní Aktivita</h1>
-</header>
 
 <div class="control" onclick="togglePopup()">control</div>
 
@@ -172,6 +178,8 @@
   <input type="password" id="passwordInput" placeholder="Zadej heslo" autocomplete="off" />
   <button onclick="checkPassword()">Potvrdit</button>
 </div>
+
+<h1>Pracovní Aktivita</h1>
 
 <div id="usersContainer">Loading...</div>
 
@@ -182,17 +190,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-  // --- TVŮJ FIREBASE CONFIG ZDE ---
   const firebaseConfig = {
-  apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
-  authDomain: "status2-ccf4d.firebaseapp.com",
-  databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "status2-ccf4d",
-  storageBucket: "status2-ccf4d.firebasestorage.app",
-  messagingSenderId: "170845328997",
-  appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
-  measurementId: "G-E9TSV3D5K9"
-};
+    apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
+    authDomain: "status2-ccf4d.firebaseapp.com",
+    databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "status2-ccf4d",
+    storageBucket: "status2-ccf4d.firebasestorage.app",
+    messagingSenderId: "170845328997",
+    appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
+    measurementId: "G-E9TSV3D5K9"
+  };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
@@ -304,47 +311,42 @@
     const sel = document.getElementById("select-" + userId);
     const newStatus = sel.value;
     statusData[userId] = newStatus;
-    const statusEl = document.getElementById("status-" + userId);
-    statusEl.textContent = capitalize(newStatus);
-    statusEl.className = "status " + newStatus;
+    const statusDiv = document.getElementById("status-" + userId);
+    statusDiv.textContent = capitalize(newStatus);
+    statusDiv.className = "status " + newStatus;
   }
 
-  function capitalize(s) {
+  function capitalize(s){
     return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function loadData(){
+    users.forEach(userId => {
+      db.ref("users/"+userId).once("value").then(snapshot => {
+        const data = snapshot.val();
+        if(data){
+          if(data.status) statusData[userId] = data.status;
+          if(data.calendar) calendarData[userId] = data.calendar;
+        }
+        if(userId === users[users.length -1]){
+          renderAllUsers();
+        }
+      });
+    });
   }
 
   function saveAll(){
     users.forEach(userId => {
-      // Save status
-      db.ref(`status/${userId}`).set(statusData[userId] || "inactive");
-      // Save calendar
-      db.ref(`calendar/${userId}`).set(calendarData[userId] || {});
+      const data = {
+        status: statusData[userId] || "inactive",
+        calendar: calendarData[userId] || {}
+      };
+      db.ref("users/" + userId).set(data);
     });
-    alert("Uloženo do Firebase.");
+    alert("Data uložena.");
   }
 
-  function loadAll() {
-    users.forEach(userId => {
-      db.ref(`status/${userId}`).get().then(snapshot => {
-        if(snapshot.exists()){
-          statusData[userId] = snapshot.val();
-        } else {
-          statusData[userId] = "inactive";
-        }
-        renderAllUsers();
-      });
-      db.ref(`calendar/${userId}`).get().then(snapshot => {
-        if(snapshot.exists()){
-          calendarData[userId] = snapshot.val();
-        } else {
-          calendarData[userId] = {};
-        }
-        renderAllUsers();
-      });
-    });
-  }
-
-  loadAll();
+  loadData();
 </script>
 
 </body>
