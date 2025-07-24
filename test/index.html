@@ -203,32 +203,30 @@
   </div>
 </div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
-  // --- TVŮJ FIREBASE CONFIG sem zkopíruj ---
-  const firebaseConfig = {
-    apiKey: "TVŮJ_API_KEY",
-    authDomain: "TVŮJ_AUTH_DOMAIN",
-    databaseURL: "TVŮJ_DATABASE_URL",
-    projectId: "TVŮJ_PROJECT_ID",
-    storageBucket: "TVŮJ_STORAGE_BUCKET",
-    messagingSenderId: "TVŮJ_MESSAGING_SENDER_ID",
-    appId: "TVŮJ_APP_ID"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const users = ["kotak", "mrtomicz", "jpmanof", "kubali"];
+  const defaultHours = {
+    "Monday": "9:00 - 16:00",
+    "Tuesday": "9:00 - 16:00",
+    "Wednesday": "9:00 - 16:00",
+    "Thursday": "9:00 - 16:00",
+    "Friday": "9:00 - 16:00",
+    "Saturday": "9:00 - 16:00",
+    "Sunday": "9:00 - 16:00"
+  };
 
+  // Výchozí statusy, aby se dropdowny nastavil správně
+  const defaultStatuses = {
+    "kotak": "active",
+    "mrtomicz": "inactive",
+    "jpmanof": "break",
+    "kubali": "active"
+  };
+
+  const calendarData = {};
   let canEdit = false;
 
-  // Funkce pro vytvoření dropdownu statusu
   function createStatusOptions(selected) {
     const options = [
       { val: "active", label: "Active" },
@@ -240,19 +238,11 @@
     ).join("");
   }
 
-  // Proměnná pro data načtená z Firebase
-  const calendarData = {};
-  const statuses = {};
-
-  // Render kalendáře pro uživatele z dat v calendarData
   function renderCalendar(userId) {
     const cal = document.getElementById("calendar-" + userId);
     cal.innerHTML = "";
-
     if (!calendarData[userId]) {
-      // pokud nejsou data, nastavíme defaultní
-      calendarData[userId] = {};
-      days.forEach(day => calendarData[userId][day] = "9:00 - 16:00");
+      calendarData[userId] = { ...defaultHours };
     }
 
     days.forEach(day => {
@@ -270,7 +260,6 @@
         const input = prompt(`Zadej nový čas pro ${day}`, calendarData[userId][day]);
         if (input !== null && input.trim() !== "") {
           calendarData[userId][day] = input.trim();
-          saveUserData(userId);
           renderCalendar(userId);
         }
       };
@@ -281,67 +270,6 @@
     });
   }
 
-  // Render statusu uživatele
-  function renderStatus(userId) {
-    const statusEl = document.getElementById("status-" + userId);
-    const select = document.getElementById("select-" + userId);
-
-    let status = statuses[userId] || "active";
-
-    statusEl.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-    statusEl.className = "status " + status;
-
-    if (canEdit) {
-      select.classList.add("visible");
-      select.innerHTML = createStatusOptions(status);
-      select.value = status;
-    } else {
-      select.classList.remove("visible");
-    }
-  }
-
-  // Uloží data uživatele do Firebase
-  function saveUserData(userId) {
-    db.ref("users/" + userId).set({
-      status: statuses[userId] || "active",
-      calendar: calendarData[userId]
-    });
-  }
-
-  // Aktualizace statusu při změně selectu
-  function updateStatus(userId) {
-    const select = document.getElementById("select-" + userId);
-    const val = select.value;
-    statuses[userId] = val;
-
-    const statusEl = document.getElementById("status-" + userId);
-    statusEl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
-    statusEl.className = "status " + val;
-
-    saveUserData(userId);
-  }
-
-  // Načte data z Firebase pro všechny uživatele
-  function loadData() {
-    users.forEach(userId => {
-      db.ref("users/" + userId).on("value", snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          statuses[userId] = data.status || "active";
-          calendarData[userId] = data.calendar || {};
-        } else {
-          // defaultní nastavení pokud není nic v DB
-          statuses[userId] = "active";
-          calendarData[userId] = {};
-          days.forEach(day => calendarData[userId][day] = "9:00 - 16:00");
-        }
-        renderStatus(userId);
-        renderCalendar(userId);
-      });
-    });
-  }
-
-  // Ovládání popupu
   function togglePopup() {
     const popup = document.getElementById("popup");
     if (popup.style.display === "block") {
@@ -353,28 +281,40 @@
     }
   }
 
-  // Kontrola hesla, povolení editace a zobrazení selectů
   function checkPassword() {
     const pw = document.getElementById("password").value;
     if (pw === "frconzole24") {
       canEdit = true;
       document.getElementById("popup").style.display = "none";
 
-      // Zobrazit selecty a nastavit je podle aktuálních statusů
-      users.forEach(userId => {
-        renderStatus(userId);
-        renderCalendar(userId);
+      // zobrazit dropdowny a nastavit je podle aktuálního stavu
+      users.forEach(user => {
+        const select = document.getElementById("select-" + user);
+        select.classList.add("visible");
+        // pokud není nastaven, použij defaultní
+        const statusEl = document.getElementById("status-" + user);
+        const currentStatus = statusEl.classList.contains("active") ? "active" :
+                              statusEl.classList.contains("break") ? "break" :
+                              statusEl.classList.contains("inactive") ? "inactive" : "active";
+        select.innerHTML = createStatusOptions(currentStatus);
+        select.value = currentStatus;
       });
-
-      alert("Editace povolena.");
     } else {
-      alert("Špatné heslo.");
+      alert("Špatné heslo!");
+      canEdit = false;
     }
   }
 
-  // Inicializace stránky
-  loadData();
+  function updateStatus(userId) {
+    const select = document.getElementById("select-" + userId);
+    const val = select.value;
+    const statusEl = document.getElementById("status-" + userId);
+    statusEl.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+    statusEl.className = "status " + val;
+  }
 
+  // inicializace kalendářů
+  users.forEach(user => renderCalendar(user));
 </script>
 
 </body>
