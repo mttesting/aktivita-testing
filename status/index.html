@@ -217,16 +217,18 @@
   const calendarData = {};
   const statusData = {};
 
-  const password = "frconzole24";
+  const password = "frcreatorAdminpanel";
 
   function togglePopup() {
     const pop = document.getElementById("popup");
     pop.style.display = pop.style.display === "block" ? "none" : "block";
   }
 
-  function checkPassword() {
+  async function checkPassword() {
     const input = document.getElementById("passwordInput");
-    if(input.value === password){
+    const fets = await fetch("/api/pwcheck?pw="+input.value);
+    const resp = await fets.text();
+    if (resp == true) {
       canEdit = true;
       togglePopup();
       renderAllUsers();
