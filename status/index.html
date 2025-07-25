@@ -270,7 +270,7 @@
 
       html += '<div class="calendar">';
       days.forEach(day => {
-        const time = (calendarData[userId] && calendarData[userId][day]) || "Off";
+        const time = (calendarData[userId] && calendarData[userId][day]) || "Not Defined";
         html += `
           <div class="day">
             <div>${day}</div>
