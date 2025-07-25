@@ -240,6 +240,16 @@
   }
 
   function renderAllUsers() {
+    const dayhtml = `
+          <div class="day">
+            <div>${day}</div>
+            <div>
+              <span class="time-text" id="text-${userId}-${day}">${time}</span>
+              <input type="text" class="time-edit" id="input-${userId}-${day}" value="${time}" />
+            </div>
+          </div>
+        `;
+
     const container = document.getElementById("usersContainer");
     container.innerHTML = "";
 
@@ -252,7 +262,7 @@
         kotak: "Koťák",
         mrtomicz: "MrTomiCZ",
         jpmanof: "JPmanOF",
-        kubali: "kubali"
+        //kubali: "kubali"
       }[userId] || userId;
 
       const status = statusData[userId] || "inactive";
@@ -271,15 +281,7 @@
       html += '<div class="calendar">';
       days.forEach(day => {
         const time = (calendarData[userId] && calendarData[userId][day]) || "Off";
-        html += `
-          <div class="day">
-            <div>${day}</div>
-            <div>
-              <span class="time-text" id="text-${userId}-${day}">${time}</span>
-              <input type="text" class="time-edit" id="input-${userId}-${day}" value="${time}" />
-            </div>
-          </div>
-        `;
+        html += dayhtml;
       });
       html += '</div>';
 
