@@ -345,29 +345,32 @@
     });
   }
 
-  function saveAll(){
-    users.forEach(async (userId) => {
+  async function saveAll() {
+    for (const userId of users) {
       const data = {
         status: statusData[userId] || "inactive",
         calendar: calendarData[userId] || {}
       };
-      //db.ref("users/"+userId).set(data);
-      await fetch("/api/save", {
+    
+      const res = await fetch("/api/save", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           pw: knownPassword,
           path: "users/" + userId,
-          data: {
-            status: statusData[userId] || "inactive",
-            calendar: calendarData[userId] || {}
-          }
+          data: data
         })
-      }).catch(err => alert("Nelze uložit uživatele " + userId + ": " + err));;
-    });
-    alert("Data uložena.");
+      });
+    
+      const result = await res.json();
+      console.log("Save result for user:", userId, result);
+      if (!result.success) {
+        alert("❌ Chyba ukládání pro uživatele " + userId + ":\n" + JSON.stringify(result.debug, null, 2));
+        return;
+      }
+    }
+  
+    alert("✅ Všechna data uložena.");
   }
 
   loadData();

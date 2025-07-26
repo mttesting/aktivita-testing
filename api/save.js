@@ -1,4 +1,3 @@
-// api/firebase.js
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set } from 'firebase/database';
 
@@ -7,13 +6,13 @@ const firebaseConfig = {
   authDomain: "status2-ccf4d.firebaseapp.com",
   databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "status2-ccf4d",
-  storageBucket: "status2-ccf4d.firebasestorage.app",
+  storageBucket: "status2-ccf4d.appspot.com",
   messagingSenderId: "170845328997",
   appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
   measurementId: "G-E9TSV3D5K9"
 };
 
-// Initialize only once (Firebase client SDK has no check for this in Node)
+// Firebase init safe
 let app;
 if (!global._firebaseApp) {
   app = initializeApp(firebaseConfig);
@@ -23,26 +22,42 @@ if (!global._firebaseApp) {
 }
 
 export default async function handler(req, res) {
+  const debug = [];
+
+  debug.push("🔥 handler start");
   if (req.method !== "POST") {
-    return res.status(200).json({ error: "Method not allowed" });
+    debug.push("❌ Wrong method: " + req.method);
+    return res.status(405).json({ error: "Method not allowed", debug });
   }
 
   try {
-    const { pw, path, data } = req.body;
+    const { pw, path, data } = req.body || {};
+    debug.push("📥 Body received", { pw, path, data });
 
     if (pw !== "frconzole24") {
-      return res.status(200).json({ error: "Unauthorized" });
+      debug.push("❌ Bad password");
+      return res.status(401).json({ error: "Unauthorized", debug });
     }
-    if (![pw, path].every(x => typeof x === 'string') || typeof data !== 'object') {
-      return res.status(200).json({ error: "Invalid input types" });
+
+    if (typeof path !== "string") {
+      debug.push("❌ Invalid 'path' type");
+      return res.status(400).json({ error: "'path' must be a string", debug });
+    }
+
+    if (typeof data !== "object" || data === null) {
+      debug.push("❌ Invalid 'data' type");
+      return res.status(400).json({ error: "'data' must be an object", debug });
     }
 
     const db = getDatabase(app);
     const dataRef = ref(db, path);
     await set(dataRef, data);
 
-    res.status(200).json({ success: true, error: "OK" });
+    debug.push("✅ Data saved to: " + path);
+    return res.status(200).json({ success: true, debug });
+
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    debug.push("💥 Exception: " + err.message);
+    return res.status(500).json({ error: err.message, debug });
   }
 }
