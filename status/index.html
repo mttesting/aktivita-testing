@@ -211,8 +211,9 @@
   const db = firebase.database();
 
   const users = ["kotak", "mrtomicz", "jpmanof"/*, "kubali"*/];
-  const days = ["Response Time","Language","Timezone","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  const days = ["Response Time","Language","Note","Timezone","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
   let canEdit = false;
+  let knownPassword = "didntLoginYetOrWrong";
 
   const calendarData = {};
   const statusData = {};
@@ -230,6 +231,7 @@
     const resp = await fets.text();
     if (resp === "true") {
       canEdit = true;
+      knownPassword = input.value;
       togglePopup();
       renderAllUsers();
       document.getElementById("saveBtn").classList.add("visible");
@@ -344,12 +346,15 @@
   }
 
   function saveAll(){
-    users.forEach(userId => {
+    users.forEach(async (userId) => {
       const data = {
         status: statusData[userId] || "inactive",
         calendar: calendarData[userId] || {}
       };
-      db.ref("users/"+userId).set(data);
+      //db.ref("users/"+userId).set(data);
+      await fetch("/api/save?pw="+knownPassword+"&path="+"users/"+userId+"&data="+JSON.stringify(data), {
+        method: "GET"
+      }).catch(err => alert("Nelze uložit uživatele " + userId + ": " + err));
     });
     alert("Data uložena.");
   }
