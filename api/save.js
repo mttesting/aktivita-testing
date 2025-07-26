@@ -23,29 +23,26 @@ if (!global._firebaseApp) {
 }
 
 export default async function handler(req, res) {
-  try {
-    const { pw, path, data } = req.query;
+  if (req.method !== "POST") {
+    return res.status(200).json({ error: "Method not allowed" });
+  }
 
-    if (!pw || pw !== "frconzole24") {
-        return res.status(200).json({ error: "Unauthorized" });
+  try {
+    const { pw, path, data } = req.body;
+
+    if (pw !== "frconzole24") {
+      return res.status(200).json({ error: "Unauthorized" });
     }
-    if (!path || !data) {
-        return res.status(200).json({ error: "Path and data are required" });
+    if (![pw, path].every(x => typeof x === 'string') || typeof data !== 'object') {
+      return res.status(200).json({ error: "Invalid input types" });
     }
-    if ([pw, path, data].every(x => typeof x !== 'string')) {
-        return res.status(200).json({ error: "Not everything is a string" });
-    }
-    JSON.parse(data).catch(err => {
-        return res.status(200).json({ error: "Data is not valid JSON" });
-    });
 
     const db = getDatabase(app);
-    const dataRef = ref(db, path); // Replace with your path
-    //const snapshot = await get(dataRef);¨
-    await set(dataRef, JSON.parse(data)); // Save the data
+    const dataRef = ref(db, path);
+    await set(dataRef, data);
 
-    res.status(200).json({ success: true, message: "Data saved successfully" });
+    res.status(200).json({ success: true, error: "OK" });
   } catch (err) {
-    res.status(200).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 }

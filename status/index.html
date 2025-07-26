@@ -352,9 +352,20 @@
         calendar: calendarData[userId] || {}
       };
       //db.ref("users/"+userId).set(data);
-      await fetch("/api/save?pw="+knownPassword+"&path="+"users/"+userId+"&data="+JSON.stringify(data), {
-        method: "GET"
-      }).catch(err => alert("Nelze uložit uživatele " + userId + ": " + err));
+      await fetch("/api/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          pw: knownPassword,
+          path: "users/" + userId,
+          data: {
+            status: statusData[userId] || "inactive",
+            calendar: calendarData[userId] || {}
+          }
+        })
+      }).catch(err => alert("Nelze uložit uživatele " + userId + ": " + err));;
     });
     alert("Data uložena.");
   }
