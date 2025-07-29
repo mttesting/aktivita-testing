@@ -6,7 +6,7 @@ const firebaseConfig = {
   authDomain: "status2-ccf4d.firebaseapp.com",
   databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "status2-ccf4d",
-  storageBucket: "status2-ccf4d.firebasestorage.app",
+  storageBucket: "status2-ccf4d.appspot.com",
   messagingSenderId: "170845328997",
   appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
   measurementId: "G-E9TSV3D5K9"
@@ -22,26 +22,25 @@ if (!global._firebaseApp) {
 }
 
 export default async function handler(req, res) {
-  const debug = [];
 
-  debug.push("🔥 handler start");
+  console.log("🔥 handler start");
   if (req.method !== "POST") {
-    debug.push("❌ Wrong method: " + req.method);
+    console.log("❌ Wrong method: " + req.method);
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     const { usr } = req.body || {}; // removed 'data'
-    debug.push("📥 Body received", { pw, usr });
+    console.log("📥 Body received");
 
     /*if (pw !== "frconzole24") {
       debug.push("❌ Bad password");
       return res.status(401).json({ error: "Unauthorized" });
     }*/
 
-    if (typeof path !== "string") {
-      debug.push("❌ Invalid 'path' type");
-      return res.status(400).json({ error: "'path' must be a string" });
+    if (typeof usr !== "string") {
+      console.log("❌ Invalid 'path' type");
+      return res.status(400).json({ error: "'usr' must be a string" });
     }
 
     const db = getDatabase(app);
@@ -49,15 +48,15 @@ export default async function handler(req, res) {
     const snapshot = await get(dataRef);
 
     if (!snapshot.exists()) {
-      debug.push("⚠️ No data found at: " + path);
+      console.log("⚠️ No data found at: " + "users/"+usr);
       return res.status(404).json({ error: "No data found" });
     }
 
-    debug.push("✅ Data read from: " + path);
+    console.log("✅ Data read from: " + "users/"+usr);
     return res.status(200).json({ success: true, data: snapshot.val() });
 
   } catch (err) {
-    debug.push("💥 Exception: " + err.message);
+    console.log("💥 Exception: " + err.message);
     return res.status(500).json({ error: err.message });
   }
 }
