@@ -335,7 +335,7 @@
 
   function loadData(){
     users.forEach(userId => {
-      db.ref("users/"+userId).once("value").then(snapshot => {
+      //db.ref("users/"+userId).once("value").then(snapshot => {
         //const data = snapshot.val();
         const resp = fetch("/api/get", {
           method: "POST",
@@ -356,7 +356,7 @@
           renderAllUsers();
         }
       });
-    });
+    //});
   }
 
   function saveAll(){
