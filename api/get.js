@@ -52,7 +52,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "No data found" });
     }
 
-    console.log("✅ Data read from: " + "users/"+usr);
+    console.log("✅ Data read from: " + "users/"+usr+", data:;  " + JSON.stringify(snapshot.val()));
     return res.status(200).json({ success: true, data: snapshot.val() });
 
   } catch (err) {
