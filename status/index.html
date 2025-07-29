@@ -210,19 +210,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAI0SM8STSA-ZLKmRYKBt13dPHmi-BY_bw",
-    authDomain: "status2-ccf4d.firebaseapp.com",
-    databaseURL: "https://status2-ccf4d-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "status2-ccf4d",
-    storageBucket: "status2-ccf4d.firebasestorage.app",
-    messagingSenderId: "170845328997",
-    appId: "1:170845328997:web:3243e6d771ae6f5c85d88c",
-    measurementId: "G-E9TSV3D5K9"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  //firebase.initializeApp(firebaseConfig);
+  //const db = firebase.database();
 
   const users = ["kotak", "mrtomicz", "jpmanof"/*, "kubali"*/];
   const days = ["Response Time","Language","Note","Timezone","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -365,8 +354,7 @@
         status: statusData[userId] || "inactive",
         calendar: calendarData[userId] || {}
       };
-      db.ref("users/"+userId).set(data);
-      /*await fetch("/api/save", {
+      const resp = await fetch("/api/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -376,7 +364,13 @@
           path: "users/" + userId,
           data: data
         })
-      });*/
+      });
+      const json = await resp.json();
+      if (json.success) {
+        console.log(`Data for ${userId} saved successfully.`);
+      } else {
+        alert(`Failed to save data for ${userId}:`, json.error);
+      }
     });
     alert("Data uložena.");
   }
