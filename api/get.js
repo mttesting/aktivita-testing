@@ -31,13 +31,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { pw, usr } = req.body || {}; // removed 'data'
+    const { usr } = req.body || {}; // removed 'data'
     debug.push("📥 Body received", { pw, usr });
 
-    if (pw !== "frconzole24") {
+    /*if (pw !== "frconzole24") {
       debug.push("❌ Bad password");
       return res.status(401).json({ error: "Unauthorized" });
-    }
+    }*/
 
     if (typeof path !== "string") {
       debug.push("❌ Invalid 'path' type");
