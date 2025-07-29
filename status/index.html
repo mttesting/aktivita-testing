@@ -336,7 +336,18 @@
   function loadData(){
     users.forEach(userId => {
       db.ref("users/"+userId).once("value").then(snapshot => {
-        const data = snapshot.val();
+        //const data = snapshot.val();
+        const resp = fetch("/api/get", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            pw: knownPassword,
+            usr: userId
+          })
+        });
+        const data = resp.json();
         if(data){
           if(data.status) statusData[userId] = data.status;
           if(data.calendar) calendarData[userId] = data.calendar;
