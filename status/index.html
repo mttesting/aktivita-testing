@@ -333,29 +333,23 @@
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  function loadData(){
-    users.forEach(async (userId) => {
-      //db.ref("users/"+userId).once("value").then(snapshot => {
-        //const data = snapshot.val();
-        const resp = await fetch("/api/get", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            usr: userId
-          })
-        });
-        const data = await resp.json();
-        if(data){
-          if(data.status) statusData[userId] = data.status;
-          if(data.calendar) calendarData[userId] = data.calendar;
-        }
-        if(userId === users[users.length -1]){
-          renderAllUsers();
-        }
+  function loadData() {
+    Promise.all(users.map(async (userId) => {
+      const resp = await fetch("/api/get", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ usr: userId })
       });
-    //});
+      const data = await resp.json();
+      if (data) {
+        if (data.status) statusData[userId] = data.status;
+        if (data.calendar) calendarData[userId] = data.calendar;
+      }
+    })).then(() => {
+      renderAllUsers();
+    });
   }
 
   function saveAll(){
