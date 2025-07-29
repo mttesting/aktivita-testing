@@ -334,10 +334,10 @@
   }
 
   function loadData(){
-    users.forEach(userId => {
+    users.forEach(async (userId) => {
       //db.ref("users/"+userId).once("value").then(snapshot => {
         //const data = snapshot.val();
-        const resp = fetch("/api/get", {
+        const resp = await fetch("/api/get", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -347,7 +347,7 @@
             usr: userId
           })
         });
-        const data = resp.json();
+        const data = await resp.json();
         if(data){
           if(data.status) statusData[userId] = data.status;
           if(data.calendar) calendarData[userId] = data.calendar;
